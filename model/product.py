@@ -5,16 +5,17 @@ import uuid
 """
 TODO
 - Maybe add functions: is_xfield_valid()
+- Maybe make quantity int
+- Maybe add category as collection to db
 """
 
 class Product:
-
-
     def __init__(
         self,
         id: str,
         name: str,
         quantity: float,  # maybe int
+        sold_quantity: float,
         weight: float,
         volume: float,
         category: str,  # TODO maybe add as collection to db
@@ -40,14 +41,16 @@ class Product:
 
     def __str__(self):
         return f"{self.id}, {self.name}, \
-                {self.quantity}, {self.weight}, \
+                {self.quantity}, {self.sort_sold_quantity}, \
+                {self.weight}, \
                 {self.volume}, {self.category}, \
                 {self.purchase_price}, {self.selling_price}, \
                 {self.manufacturer}, {self.unit_gain}"
 
     def __repr__(self):
         return f"Product('{self.id}', '{self.name}', \
-                        '{self.quantity}', '{self.weight}', \
+                        '{self.quantity}', '{self.sort_sold_quantity}', \
+                        '{self.weight}', \
                         '{self.volume}', '{self.category}', \
                         '{self.purchase_price}', '{self.selling_price}', \
                         '{self.manufacturer}', '{self.unit_gain}',)"
@@ -57,6 +60,7 @@ class Product:
             "id":               self.id,
             "name":             self.name,
             "quantity":         self.quantity,
+            "sold_quantity":    self.sold_quantity,
             "weight":           self.weight,
             "volume":           self.volume,
             "category":         self.category,
@@ -72,6 +76,7 @@ class Product:
             data.get("id"),
             data.get("name"),
             data.get("quantity"),
+            data.get("sold_quantity"),
             data.get("weight"),
             data.get("volume"),
             data.get("category"),
