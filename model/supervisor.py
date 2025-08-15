@@ -1,10 +1,11 @@
+from typing import Optional
 from model.employee import Employee
 
 
 class Supervisor(Employee):
     def __init__(
         self,
-        id: str | None,
+        id: Optional[str],
         name: str,
         surname: str,
         username: str,

@@ -1,11 +1,12 @@
 from  __future__ import annotations # for pyright typechecking
+from typing import Optional
 import uuid
 
 
 class Employee:
     def __init__(
         self,
-        id: str | None,
+        id: Optional[str],
         name: str,
         surname: str,
         username: str,
@@ -13,13 +14,13 @@ class Employee:
         unit_id: str,
         unit_name: str,
     ):
-        self.id: str | None = id if id is not None else str(uuid.uuid4())
-        self.name: str      = name
-        self.surname: str   = surname
-        self.username: str  = username
-        self.password: str  = password
-        self.unit_id: str   = unit_id
-        self.unit_name: str = unit_name
+        self.id: Optional[str] = id if id is not None else str(uuid.uuid4())
+        self.name: str         = name
+        self.surname: str      = surname
+        self.username: str     = username
+        self.password: str     = password
+        self.unit_id: str      = unit_id
+        self.unit_name: str    = unit_name
 
 
     def __eq__(self, other: Employee) -> bool:

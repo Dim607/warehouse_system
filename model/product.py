@@ -1,5 +1,6 @@
 from __future__ import annotations  # for pyright typechecking
 import uuid
+from typing import Optional
 from operator import attrgetter
 
 
@@ -12,7 +13,7 @@ TODO
 class Product:
     def __init__(
         self,
-        id: str | None,
+        id: Optional[str],
         name: str,
         quantity: int,  # maybe int
         sold_quantity: int,
@@ -24,7 +25,7 @@ class Product:
         manufacturer: str,
         unit_gain: float,
     ):
-        self.id: str | None        = id if id is not None else str(uuid.uuid4())
+        self.id: Optional[str]     = id if id is not None else str(uuid.uuid4())
         self.name:str              = name 
         self.quantity: int         = quantity
         self.sold_quantity: int    = sold_quantity
