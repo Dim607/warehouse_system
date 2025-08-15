@@ -6,14 +6,13 @@ from operator import attrgetter
 """
 TODO
 - Maybe add functions: is_xfield_valid()
-- Maybe make quantity int
 - Maybe add category as collection to db
 """
 
 class Product:
     def __init__(
         self,
-        id: str,
+        id: str | None,
         name: str,
         quantity: int,  # maybe int
         sold_quantity: int,
@@ -25,7 +24,7 @@ class Product:
         manufacturer: str,
         unit_gain: float,
     ):
-        self.id: str               = id if id is not None else str(uuid.uuid4())
+        self.id: str | None        = id if id is not None else str(uuid.uuid4())
         self.name:str              = name 
         self.quantity: int         = quantity
         self.sold_quantity: int    = sold_quantity
@@ -87,6 +86,7 @@ class Product:
             data.get("manufacturer"),
             data.get("unit_gain"),
         )
+
 
     def sell_product(self, sold_product: int):
         self.sold_quantity = self.sold_quantity + sold_product
