@@ -5,7 +5,7 @@ import uuid
 class Employee:
     def __init__(
         self,
-        id: str,
+        id: str | None,
         name: str,
         surname: str,
         username: str,
@@ -13,7 +13,7 @@ class Employee:
         unit_id: str,
         unit_name: str,
     ):
-        self.id: str        = id if id is not None else str(uuid.uuid4())
+        self.id: str | None = id if id is not None else str(uuid.uuid4())
         self.name: str      = name
         self.surname: str   = surname
         self.username: str  = username
@@ -26,12 +26,10 @@ class Employee:
         return self.id == other.id
 
 
-    # TODO implement
     def __str__(self) -> str:
         return f"{self.id}, {self.name}, {self.surname}, {self.username}, {self.password}, {self.unit_id}, {self.unit_name}"
 
     
-    # TODO implement
     def __repr__(self) -> str:
         return f"Employee('{self.id}', '{self.name}', '{self.surname}', '{self.username}', '{self.password}', '{self.unit_id}', '{self.unit_name}')"
 
@@ -59,3 +57,10 @@ class Employee:
             data.get("unit_id"),
             data.get("unit_name"),
         )
+
+
+    def change_password(self, new_password: str) -> bool:
+        if self.password == new_password:
+            return False
+        self.password = new_password
+        return True
