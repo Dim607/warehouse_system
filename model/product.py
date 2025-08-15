@@ -15,7 +15,7 @@ class Product:
         self,
         id: Optional[str],
         name: str,
-        quantity: int,  # maybe int
+        quantity: int,
         sold_quantity: int,
         weight: float,
         volume: float,
@@ -99,7 +99,7 @@ class Product:
     # if reverse = true -> sort in descending order
     @staticmethod
     def sort_name(product_list: list[Product], reverse: bool):
-        product_list.sort(key=attrgetter("name"), reverse=reverse)        
+        product_list.sort(key=attrgetter("name"), reverse=reverse)
 
 
     # Sorts in place based on product sold quantity

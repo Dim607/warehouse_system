@@ -24,6 +24,7 @@ class Supervisor(Employee):
         )
 
 
+    # it is not specified if the supervisor should also assign a username
     def create_employee(self, name:str, surname: str, username: str, password: str) -> Employee:
         employee = Employee(
             id        = None,
