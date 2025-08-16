@@ -1,6 +1,7 @@
 import os
 from pymongo import MongoClient
 from app.custom_flask import CustomFlask
+from app.routes import employee_routes, supervisor_routes, admin_routes
 
 
 def create_server():
@@ -33,5 +34,10 @@ def create_server():
     server.employee_collection   = employee_collection
     server.supervisor_collection = supervisor_collection
     server.product_collection    = product_collection
+
+    # Add blueprints for routes
+    server.register_blueprint(employee_routes.employee_bp)
+    server.register_blueprint(supervisor_routes.supervisor_bp)
+    server.register_blueprint(admin_routes.admin_bp)
 
     return server
