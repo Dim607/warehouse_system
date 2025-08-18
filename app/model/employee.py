@@ -49,16 +49,22 @@ class Employee:
 
     @classmethod
     def from_dict(cls, data):
-        return cls(
-            data.get("id"),
-            data.get("name"),
-            data.get("surname"),
-            data.get("username"),
-            data.get("password"),
-            data.get("unit_id"),
-            data.get("unit_name"),
-        )
+        attributes = ["name", "surname", "username", "password", "unit_id", "unit_name"]
 
+        for attr in attributes:
+            if data.get(attr) is None:
+                raise Exception(f"Attribute {attr} cannot be None")
+
+        employee = cls(
+            id        = data.get("id"),
+            name      = data.get("name"),
+            surname   = data.get("surname"),
+            username  = data.get("username"),
+            password  = data.get("password"),
+            unit_id   = data.get("unit_id"),
+            unit_name = data.get("unit_name"),
+        )
+        return employee
 
     def change_password(self, new_password: str) -> bool:
         if self.password == new_password:
