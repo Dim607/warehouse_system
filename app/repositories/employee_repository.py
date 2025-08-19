@@ -24,7 +24,7 @@ class EmployeeRepository:
     # Returns the employee whose username and password match the function parameters
     # If there is no employee it returns None
     # If an Employee object cannot be created from the data in the db an exception is raised
-    def get_employee(self, username: str, password: str, unit_id) -> Employee | None:
+    def get_employee(self, username: str, password: str, unit_id: str) -> Employee | None:
         query = {
             "$and": [
                 {"username": username},
