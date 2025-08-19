@@ -1,6 +1,7 @@
 import os
 from pymongo import MongoClient
 from app.custom_flask import CustomFlask
+from app.repositories.employee_repository import EmployeeRepository
 from app.routes import employee_routes, supervisor_routes, admin_routes
 
 
@@ -10,8 +11,8 @@ def create_server():
 
     server.config["SERVER_HOST"]       = os.environ.get("SERVER_HOST", "localhost")
     server.config["SERVER_PORT"]       = int(os.environ.get("SERVER_PORT", 5000))
-    server.config["SERVER_SECRET_KEY"] = os.environ.get("SERVER_SECRET_KEY", "a_secret_key")
-    server.config["MONGO_DATABASE"]    = os.environ.get("MONGO_DATABASE", "school_db")
+    server.config["SERVER_SECRET_KEY"] = os.environ.get("SERVER_SECRET_KEY", os.urandom(24).hex())
+    server.config["MONGO_DATABASE"]    = os.environ.get("MONGO_DATABASE", "LogisticsDB")
     server.config["MONGO_HOST"]        = os.environ.get("MONGO_HOST", "localhost")
     server.config["MONGO_PORT"]        = int(os.environ.get("MONGO_PORT", 27017))
 
@@ -36,8 +37,19 @@ def create_server():
     server.product_collection    = product_collection
 
     # Add blueprints for routes
-    server.register_blueprint(employee_routes.employee_bp)
-    server.register_blueprint(supervisor_routes.supervisor_bp)
-    server.register_blueprint(admin_routes.admin_bp)
+    # server.register_blueprint(employee_routes.employee_bp)
+    # server.register_blueprint(supervisor_routes.supervisor_bp)
+    # server.register_blueprint(admin_routes.admin_bp)
+    
+    # Initialize repositories
+    emp_repo = EmployeeRepository(server.employee_collection)
+    # sup_repo = 
+    # adm_repo = 
+    # unt_repo = 
+    # prd_repo = 
+
+    server.register_blueprint(employee_routes.create_employee_blueprint(emp_repo))
+    # server.register_blueprint()
+    # server.register_blueprint()
 
     return server

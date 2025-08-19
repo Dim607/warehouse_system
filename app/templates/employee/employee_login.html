@@ -3,35 +3,31 @@
   <head></head>
   <body>
     <h1>Login</h1>
+    <form method="post" action="{{ url_for('employee.login') }}">
+      <table>
+        <tr>
+          <td>Username:</td>
+          <td>
+            <input type="text" id="username-input" name="username" required>
+          </td>
+        </tr> 
+        <tr>
+          <td>Password:</td>
+          <td>
+            <input type="text" id="password-input" name="password" required>
+          </td>
+        </tr>
+        <tr>
+          <td>Unit name:</td>
+          <td>
+            <input type="text" id="unit-input" name="unit" required>
+          </td>
+        </tr>
+      </table>
+    </form>
 
-    <table>
-      <tr>
-        <td>Username:</td>
-        <td>
-          <input type="text" id="username-input" name="username" required>
-        </td>
-      </tr> 
-      <tr>
-        <td>Password:</td>
-        <td>
-          <input type="text" id="password-input" name="password" required>
-        </td>
-      </tr>
-      <tr>
-        <td>Unit name:</td>
-        <td>
-          <input type="text" id="unit-input" name="unit" required>
-        </td>
-      </tr>
-    </table>
-      <br>
-      <br>
-
-        <!-- <div class="field"> -->
-        <!--   <label for="username-input">Username</label> -->
-        <!--   <input type="text" id="username-input" name="username" required> -->
-        <!--   <div id="username-input-error-message" class="error-message">Empty</div> -->
-        <!-- </div> -->
-
+    {% if error %}
+    <p style="color: red;">{{ error }}</p>
+    {% endif %}
   </body>
 </html>
