@@ -36,11 +36,6 @@ def create_server():
     server.supervisor_collection = supervisor_collection
     server.product_collection    = product_collection
 
-    # Add blueprints for routes
-    # server.register_blueprint(employee_routes.employee_bp)
-    # server.register_blueprint(supervisor_routes.supervisor_bp)
-    # server.register_blueprint(admin_routes.admin_bp)
-    
     # Initialize repositories
     emp_repo = EmployeeRepository(server.employee_collection)
     # sup_repo = 
@@ -48,8 +43,7 @@ def create_server():
     # unt_repo = 
     # prd_repo = 
 
+    # Add blueprints for routes
     server.register_blueprint(employee_routes.create_employee_blueprint(emp_repo))
-    # server.register_blueprint()
-    # server.register_blueprint()
 
     return server
