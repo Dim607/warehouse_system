@@ -1,12 +1,9 @@
-from typing import Tuple
 from flask import Blueprint, Request, Response, jsonify, url_for, request, session, redirect, render_template
-# from flask import current_app
 from app.repositories.employee_repository import EmployeeRepository
 
 
 def create_employee_blueprint(emp_repo: EmployeeRepository) -> Blueprint:
     employee_bp = Blueprint("employee", __name__, url_prefix="/employee")
-# emp_repo = EmployeeRepository.instance()
 
     @employee_bp.route("/", methods=["GET"])
     def home():
@@ -26,22 +23,24 @@ def create_employee_blueprint(emp_repo: EmployeeRepository) -> Blueprint:
         if request.method != "POST":
             return render_template("employee/employee_login.html")
 
-        username = request.form['username']
-        password = request.form['password']
-        employee = emp_repo.get_employee(username, password)
+        username = request.form["username"]
+        password = request.form["password"]
+        unit_id  = request.form["unit_id"]
+        employee = emp_repo.get_employee(username, password, unit_id)
 
         if employee is None:
             error = "Invalid credentials"
             return render_template("employee/employee_login.html", error=error)
         else:
             session["employee_id"] = employee.id
-
         return redirect(url_for("employee.dashboard"))
+
 
     @employee_bp.route("/logout", methods=["GET"])
     def logout():
         session.pop("employee_id")
         return redirect(url_for("employee.login"))
+
 
     @employee_bp.route("/dashboard", methods=["POST", "GET"])
     def dashboard():
@@ -49,7 +48,30 @@ def create_employee_blueprint(emp_repo: EmployeeRepository) -> Blueprint:
             return redirect(url_for("employee.login"))
         return render_template("employee/employee_dashboard.html")
 
+
+    @employee_bp.route("/profile", methods=["GET"])
+    def show_profile():
+        if "employee_id" not in session:
+            redirect(url_for("employee.login"))
+        employee = emp_repo.get_employee_by_id(session["empoyee_id"])
+
+        if employee is None:
+            error = "Could not find employee"
+            return render_template("employee/profile.html", error = error)
+
+        return render_template(
+            "employee/profile.html",
+            name      = employee.name,
+            surname   = employee.surname,
+            username  = employee.username,
+            unit_id   = employee.unit_id,
+            unit_name = employee.unit_name
+        )
+
+
     return employee_bp
+
+
 
 # employee_bp = Blueprint("employee", __name__, url_prefix="/employee")
 # # emp_repo = EmployeeRepository.instance()

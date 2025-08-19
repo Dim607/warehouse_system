@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head></head>
+  <body>
+    <h1>Profile</h1>
+      <table>
+        <tr>
+          <td>Name:</td>
+          <td> {{ name }} </td>
+        </tr> 
+        <tr>
+          <td>Surname:</td>
+          <td> {{ surname }} </td>
+        </tr> 
+        <tr>
+          <td>Username:</td>
+          <td> {{ username }} </td>
+        </tr> 
+        <tr>
+          <td>Unit id:</td>
+          <td> {{ unit_id }} </td>
+        </tr>
+        <tr>
+          <td>Unit name:</td>
+          <td> {{ unit_name }} </td>
+        </tr>
+      </table>
+
+      <a href="{{ url_for(employee.dashboard) }}">Return to dashboard </a>
+
+    {% if error %}
+    <p style="color: red;">{{ error }}</p>
+    {% endif %}
+  </body>
+</html>
