@@ -49,7 +49,7 @@ class Employee:
 
     @classmethod
     def from_dict(cls, data):
-        # id can be None so dont include it in the attributes list
+        # id can be None so dont include it in the attr list
         attributes = ["name", "surname", "username", "password", "unit_id", "unit_name"]
 
         for attr in attributes:
