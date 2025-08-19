@@ -5,4 +5,3 @@ server = create_server()
 if __name__ == "__main__":
     # server.run(debug=True, host=SERVER_HOST, port=SERVER_PORT)
     server.run(debug=True, host=server.config["SERVER_HOST"], port=server.config["SERVER_PORT"])
-
