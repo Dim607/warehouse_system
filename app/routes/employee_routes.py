@@ -52,7 +52,7 @@ def create_employee_blueprint(emp_repo: EmployeeRepository) -> Blueprint:
     @employee_bp.route("/profile", methods=["GET"])
     def show_profile():
         if "employee_id" not in session:
-            redirect(url_for("employee.login"))
+            return redirect(url_for("employee.login"))
         employee = emp_repo.get_employee_by_id(session["empoyee_id"])
 
         if employee is None:
@@ -67,6 +67,45 @@ def create_employee_blueprint(emp_repo: EmployeeRepository) -> Blueprint:
             unit_id   = employee.unit_id,
             unit_name = employee.unit_name
         )
+
+    """
+    TODO
+    Maybe use PUT instead of POST
+    """
+    @employee_bp.route("/change-password", methods=["GET", "POST"])
+    def change_password():
+        error = None
+
+        if request.method is not "POST":
+            return render_template("employee/change-password.html")
+
+        if "employee_id" not in session:
+            return redirect(url_for("employee.login"))
+
+        employee_id = session["employee_id"]
+        employee_id = "hello"
+
+        # the old password is used for verification
+        password_old = request.form["password_old"]
+        password_new = request.form["password_new"]
+
+        employee = emp_repo.get_employee_by_id(employee_id)
+
+        if employee is None:
+            error = "Could not find employee"
+            return render_template("employee/change-password.html", error=error)
+
+        if employee.password is not password_old:
+            error = "Previous password is incorrect"
+            return render_template("employee/change-password.html", error=error)
+
+        is_password_changed =emp_repo.change_password(employee_id, password_new) 
+
+        if is_password_changed is False:
+            error = "Could not change password"
+            return render_template("employee/change-password.html", error=error)
+
+        return render_template("employee/change-password.html")
 
 
     return employee_bp
