@@ -38,3 +38,14 @@ class EmployeeRepository:
 
         return Employee.from_dict(result)
 
+
+    # change the password of the employee with the corresponding id
+    def change_password(self, id: str, password: str) -> bool:
+        result = self.employee_collection.find_one_and_update(
+            {"id": id},
+            {"$set": {"password": password}}
+        )
+        if result is None:
+            return False
+
+        return True
