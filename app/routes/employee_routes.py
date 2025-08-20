@@ -31,8 +31,8 @@ def create_employee_blueprint(emp_repo: EmployeeRepository) -> Blueprint:
         if employee is None:
             error = "Invalid credentials"
             return render_template("employee/employee_login.html", error=error)
-        else:
-            session["employee_id"] = employee.id
+
+        session["employee_id"] = employee.id
         return redirect(url_for("employee.dashboard"))
 
 
@@ -76,14 +76,13 @@ def create_employee_blueprint(emp_repo: EmployeeRepository) -> Blueprint:
     def change_password():
         error = None
 
-        if request.method is not "POST":
+        if request.method != "POST":
             return render_template("employee/change-password.html")
 
         if "employee_id" not in session:
             return redirect(url_for("employee.login"))
 
         employee_id = session["employee_id"]
-        employee_id = "hello"
 
         # the old password is used for verification
         password_old = request.form["password_old"]
@@ -95,11 +94,11 @@ def create_employee_blueprint(emp_repo: EmployeeRepository) -> Blueprint:
             error = "Could not find employee"
             return render_template("employee/change-password.html", error=error)
 
-        if employee.password is not password_old:
+        if employee.password != password_old:
             error = "Previous password is incorrect"
             return render_template("employee/change-password.html", error=error)
 
-        is_password_changed =emp_repo.change_password(employee_id, password_new) 
+        is_password_changed = emp_repo.change_password(employee_id, password_new) 
 
         if is_password_changed is False:
             error = "Could not change password"
