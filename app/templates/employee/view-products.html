@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head></head>
+  <body>
+    <table>
+      <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>quantity</th>
+        <th>sold_quantity</th>
+        <th>weight</th>
+        <th>volume</th>
+        <th>category</th>
+        <th>purchase_price</th>
+        <th>selling_price</th>
+        <th>manufacturer</th>
+        <th>unit_gain</th>
+      </tr>
+      {% for product in products %}
+        <tr>
+        {{ product.id }}
+        {{ product.name }}
+        {{ product.quantity }}
+        {{ product.sold_quantity }}
+        {{ product.weight }}
+        {{ product.volume }}
+        {{ product.category }}
+        {{ product.purchase_price }}
+        {{ product.selling_price }}
+        {{ product.manufacturer }}
+        {{ product.unit_gain}}
+        </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>
+

@@ -1,8 +1,11 @@
+from typing import List
 from flask import Blueprint, url_for, request, session, redirect, render_template
+from app.repositories import product_repository
 from app.repositories.employee_repository import EmployeeRepository
+from app.repositories.product_repository import ProductRepository
 
 
-def create_employee_blueprint(emp_repo: EmployeeRepository) -> Blueprint:
+def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRepository) -> Blueprint:
     employee_bp = Blueprint("employee", __name__, url_prefix="/employee")
 
     @employee_bp.route("/", methods=["GET"])
@@ -53,6 +56,7 @@ def create_employee_blueprint(emp_repo: EmployeeRepository) -> Blueprint:
     def show_profile():
         if "employee_id" not in session:
             return redirect(url_for("employee.login"))
+
         employee = emp_repo.get_employee_by_id(session["empoyee_id"])
 
         if employee is None:
@@ -102,6 +106,30 @@ def create_employee_blueprint(emp_repo: EmployeeRepository) -> Blueprint:
             return render_template("employee/change-password.html", error=error)
 
         return render_template("employee/change-password.html")
+
+
+    @employee_bp.route("/view-products", methods=["GET", "POST"])
+    def view_products():
+        error = None
+        products: List | None
+
+        if "employee_id" not in session:
+            return redirect(url_for("employee.login"))
+
+        if request.method != "POST":
+            return render_template("employee/view-products.html")
+
+        products = prod_repo.get_products()
+
+        if products is None:
+            error = "Database error"
+            return render_template("employee/view-products.html", error=error)
+
+        if len(products) == 0:
+            error = "No products found"
+            return render_template("employee/view-products.html", error=error)
+
+        return render_template("employee/view-products.html", products=[product.to_dict() for product in products])
 
 
     return employee_bp
