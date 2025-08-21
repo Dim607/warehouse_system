@@ -18,17 +18,17 @@
       </tr>
       {% for product in products %}
         <tr>
-        {{ product.id }}
-        {{ product.name }}
-        {{ product.quantity }}
-        {{ product.sold_quantity }}
-        {{ product.weight }}
-        {{ product.volume }}
-        {{ product.category }}
-        {{ product.purchase_price }}
-        {{ product.selling_price }}
-        {{ product.manufacturer }}
-        {{ product.unit_gain}}
+          <td>{{ product.id }}</td>
+          <td>{{ product.name }}</td>
+          <td>{{ product.quantity }}</td>
+          <td>{{ product.sold_quantity }}</td>
+          <td>{{ product.weight }}</td>
+          <td>{{ product.volume }}</td>
+          <td>{{ product.category }}</td>
+          <td>{{ product.purchase_price }}</td>
+          <td>{{ product.selling_price }}</td>
+          <td>{{ product.manufacturer }}</td>
+          <td>{{ product.unit_gain}}</td>
         </tr>
       {% endfor %}
     </table>
