@@ -68,19 +68,16 @@ def create_employee_blueprint(emp_repo: EmployeeRepository) -> Blueprint:
             unit_name = employee.unit_name
         )
 
-    """
-    TODO
-    Maybe use PUT instead of POST
-    """
+
     @employee_bp.route("/change-password", methods=["GET", "POST"])
     def change_password():
         error = None
 
-        if request.method != "POST":
-            return render_template("employee/change-password.html")
-
         if "employee_id" not in session:
             return redirect(url_for("employee.login"))
+
+        if request.method != "POST":
+            return render_template("employee/change-password.html")
 
         employee_id = session["employee_id"]
 
