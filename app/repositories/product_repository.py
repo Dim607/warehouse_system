@@ -10,9 +10,16 @@ class ProductRepository:
     def __init__(self, product_collection: Collection):
         self.product_collection = product_collection
 
+    def get_product_by_id(self, id: str) -> Product | None:
+        result = self.product_collection.find_one({"id": id})
+
+        if result is None:
+            return None
+
+        return Product.from_dict(result)
+
     def get_products(self) -> List[Product]:
         result = self.product_collection.find()
-
         return [Product.from_dict(product) for product in result]
 
     def search_products(
