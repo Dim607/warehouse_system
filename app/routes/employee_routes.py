@@ -32,11 +32,7 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
         unit_id  = request.form["unit_id"]
         employee = emp_repo.get_employee(username, password, unit_id)
 
-        # if employee is None:
-        #     error = "Invalid credentials"
-        #     return render_template("employee/employee_login.html", error=error)
-
-        if not employee:
+        if employee is None:
             error = "Invalid credentials"
             return render_template("employee/employee_login.html", error=error)
 
@@ -64,12 +60,7 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
 
         employee = emp_repo.get_employee_by_id(session["empoyee_id"])
 
-        # if employee is None:
-        #     error = "Could not find employee"
-        #     return render_template("employee/profile.html", error = error)
-
-
-        if not employee:
+        if employee is None:
             error = "Could not find employee"
             return render_template("employee/profile.html", error = error)
 
@@ -101,11 +92,7 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
 
         employee = emp_repo.get_employee_by_id(employee_id)
 
-        # if employee is None:
-        #     error = "Could not find employee"
-        #     return render_template("employee/change-password.html", error=error)
-
-        if not employee:
+        if employee is None:
             error = "Could not find employee"
             return render_template("employee/change-password.html", error=error)
 
@@ -134,10 +121,6 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
             return render_template("employee/view-products.html")
 
         products = prod_repo.get_products()
-
-        # if products is None:
-        #     error = "Database error"
-        #     return render_template("employee/view-products.html", error=error)
 
         if not products:
             error = "No products found"
@@ -180,7 +163,6 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
             return render_template("search_products.html", error=error)
 
         return render_template("search_products.html", products=products)
-
 
 
     def view_product():
