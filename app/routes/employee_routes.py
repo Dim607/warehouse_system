@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from flask import Blueprint, jsonify, url_for, request, session, redirect, render_template
 from app.model.product import Product
 from app.repositories import product_repository
@@ -135,7 +135,7 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
         products: List[Product]
 
         if "employee_id" not in session:
-            return redirect(url_for("employee.search_products"))
+            return redirect(url_for("employee.login"))
 
         if request.method != "POST":
             return render_template("employee/search_products.html")
@@ -165,8 +165,30 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
         return render_template("search_products.html", products=products)
 
 
+    @employee_bp.route("/view-product", methods=["GET", "POST"])
     def view_product():
-        return jsonify({}), 200
+        error: str = ""
+        product: Optional[Product] = None
+
+        if "employee_id" not in session:
+            return redirect(url_for("employee.login"))
+
+        if request.method != "POST":
+            return render_template("employee/view_product")
+
+        id = request.form.get("product_id")
+
+        if id is None:
+            error = "No products found"
+            return render_template("employee/view_product", error=error, product=product)
+
+        product = prod_repo.get_product_by_id(id)
+
+        if product is None:
+            error = "No products found"
+            return render_template("employee/view_product", error=error, product=product)
+
+        return render_template("employee/view_product", error=error, product=product)
 
 
     def sell_product():

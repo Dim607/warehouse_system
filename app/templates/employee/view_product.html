@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head></head>
+  <body>
+    <form>
+      <table>
+        <tr>
+          <td>
+            <label for="product-id-input">Product id:</label>
+          </td>
+          <td colspan="2">
+            <input type="text" id="product-id-input" name="product_id">
+          </td>
+        </tr>
+      </table>
+      <input type="submit" value="View">
+    </form>
+
+    {% if error %}
+    <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    
+    <br>
+    <table>
+      <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>quantity</th>
+        <th>sold_quantity</th>
+        <th>weight</th>
+        <th>volume</th>
+        <th>category</th>
+        <th>purchase_price</th>
+        <th>selling_price</th>
+        <th>manufacturer</th>
+        <th>unit_gain</th>
+      </tr>
+      {% if product %}
+        <tr>
+          <td>{{ product.id }}</td>
+          <td>{{ product.name }}</td>
+          <td>{{ product.quantity }}</td>
+          <td>{{ product.sold_quantity }}</td>
+          <td>{{ product.weight }}</td>
+          <td>{{ product.volume }}</td>
+          <td>{{ product.category }}</td>
+          <td>{{ product.purchase_price }}</td>
+          <td>{{ product.selling_price }}</td>
+          <td>{{ product.manufacturer }}</td>
+          <td>{{ product.unit_gain}}</td>
+        </tr>
+      {% endif %}
+    </table>
+  </body>
+</html>
+
