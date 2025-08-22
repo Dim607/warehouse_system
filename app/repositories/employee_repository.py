@@ -14,7 +14,8 @@ class EmployeeRepository:
 
 
     def get_employee_by_id(self, id: str) -> Employee | None:
-        result = self.employee_collection.find({"id": id})
+        result = self.employee_collection.find_one({"id": id})
+
         if result is None:
             return None
 
@@ -32,7 +33,9 @@ class EmployeeRepository:
                 {"unit_id" : unit_id},
             ]
         }
+
         result = self.employee_collection.find_one(query)
+
         if result is None:
             return None
 
@@ -45,6 +48,7 @@ class EmployeeRepository:
             {"id": id},
             {"$set": {"password": password}}
         )
+
         if result is None:
             return False
 
