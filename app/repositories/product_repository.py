@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 import pymongo
 from pymongo.database import Collection
 from app.model.product import Product
@@ -24,12 +24,12 @@ class ProductRepository:
 
     def search_products(
         self,
-        order_field: str | None,
-        order_type: str | None,
-        name: str | None,
-        id: str | None,
-        start_index: int | None,
-        end_index: int | None,
+        order_field: Optional[str],
+        order_type: Optional[str],
+        name: Optional[str],
+        id: Optional[str],
+        start_index: Optional[int],
+        end_index: Optional[int],
     ) -> List[Product]:
 
         query: dict = {}
