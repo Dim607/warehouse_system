@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    <form method="post" action="{{ url_for('employee.search_products') }}">
+      <table>
+        <tr>
+          <td>
+            <label for="order-field-input">Choose field to base order:</label>
+          </td>
+          <td>
+            <select id="order-field-input" name="order_field">
+              <option value="">--</option>
+              <option value="name">Product name</option> 
+              <option value="quantity"> Sold quantity</option> 
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label for="order-type-input">Choose order:</label>
+          </td>
+          <td>
+            <select id="order-type-input" name="order_type">
+              <option value="">--</option>
+              <option value="ascending">Ascending</option> 
+              <option value="descending">Descending</option> 
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label for="product-name-input">Product name:</label>
+          </td>
+          <td colspan="2">
+            <input type="text" id="product-name-input" name="product_name">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label for="product-id-input">Product id:</label>
+          </td>
+          <td colspan="2">
+            <input type="text" id="product-id-input" name="product_id">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label>Quantity:</label>
+          </td>
+          <td>
+            <input type="number" name="start_index" min="0" placeholder="From">
+          </td>
+          <td>
+            <input type="number" name="end_index" min="0" placeholder="To">
+          </td>
+        </tr>
+      </table>
+      <input type="submit" value="Search">
+    </form>
+
+    {% if error %}
+    <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    <br>
+    <!-- Table containing all products that fit the search filters-->
+    <table>
+      <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>quantity</th>
+        <th>sold_quantity</th>
+        <th>weight</th>
+        <th>volume</th>
+        <th>category</th>
+        <th>purchase_price</th>
+        <th>selling_price</th>
+        <th>manufacturer</th>
+        <th>unit_gain</th>
+      </tr>
+      {% for product in products %}
+        <tr>
+          <td>{{ product.id }}</td>
+          <td>{{ product.name }}</td>
+          <td>{{ product.quantity }}</td>
+          <td>{{ product.sold_quantity }}</td>
+          <td>{{ product.weight }}</td>
+          <td>{{ product.volume }}</td>
+          <td>{{ product.category }}</td>
+          <td>{{ product.purchase_price }}</td>
+          <td>{{ product.selling_price }}</td>
+          <td>{{ product.manufacturer }}</td>
+          <td>{{ product.unit_gain}}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>
+

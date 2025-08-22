@@ -1,5 +1,6 @@
 from typing import List
-from flask import Blueprint, url_for, request, session, redirect, render_template
+from flask import Blueprint, jsonify, url_for, request, session, redirect, render_template
+from app.model.product import Product
 from app.repositories import product_repository
 from app.repositories.employee_repository import EmployeeRepository
 from app.repositories.product_repository import ProductRepository
@@ -121,15 +122,53 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
 
         products = prod_repo.get_products()
 
-        if products is None:
-            error = "Database error"
-            return render_template("employee/view-products.html", error=error)
+        # if products is None:
+        #     error = "Database error"
+        #     return render_template("employee/view-products.html", error=error)
 
-        if len(products) == 0:
+        if not products:
             error = "No products found"
             return render_template("employee/view-products.html", error=error)
 
         return render_template("employee/view-products.html", products=[product.to_dict() for product in products])
+
+
+    @employee_bp.route("view-products", methods=["GET", "POST"])
+    def search_product():
+        order_field: str  = request.form["order_field"]
+        order_type: str   = request.form["order_type"]
+        product_name: str = request.form["product_name"]
+        product_id: str   = request.form["product_id"]
+        start_index: str  = request.form["start_index"]
+        end_index: str    = request.form["end_index"]
+        products: List[Product]
+        error: str
+
+        # is order_field valid?
+        if order_field != "name" and order_field != "quantity":
+            products = prod_repo.search_products(None, None, product_name, product_id, int(start_index), int(end_index))
+        # No need to check order_type, ascending is default unless descending is specified
+
+        try:
+            products = prod_repo.search_products(order_field, order_type, product_name, product_id, int(start_index), int(end_index))
+        except Exception as e:
+            error = "Could not perform operation"
+            return render_template("search_products.html", error=error)
+
+        if not products:
+            error = "No products found"
+            return render_template("search_products.html", error=error)
+
+        return render_template("search_products.html", products=products)
+
+
+
+    def view_product():
+        return jsonify({}), 200
+
+
+    def sell_product():
+        return jsonify({}), 200
 
 
     return employee_bp
