@@ -124,9 +124,8 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
 
         if not products:
             error = "No products found"
-            return render_template("employee/view-products.html", error=error)
 
-        return render_template("employee/view-products.html", products=[product.to_dict() for product in products])
+        return render_template("employee/view-products.html", error=error, products=[product.to_dict() for product in products])
 
 
     @employee_bp.route("view-products", methods=["GET", "POST"])
