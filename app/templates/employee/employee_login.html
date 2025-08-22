@@ -3,7 +3,7 @@
   <head></head>
   <body>
     <h1>Login</h1>
-    <form method="post" action="{{ url_for('employee.login') }}">
+    <form method="post" action="{{ url_for('employee.dashboard') }}">
       <table>
         <tr>
           <td>Username:</td>
@@ -24,6 +24,7 @@
           </td>
         </tr>
       </table>
+      <input type="submit" value="Login">
     </form>
 
     {% if error %}
