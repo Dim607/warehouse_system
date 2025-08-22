@@ -32,7 +32,11 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
         unit_id  = request.form["unit_id"]
         employee = emp_repo.get_employee(username, password, unit_id)
 
-        if employee is None:
+        # if employee is None:
+        #     error = "Invalid credentials"
+        #     return render_template("employee/employee_login.html", error=error)
+
+        if not employee:
             error = "Invalid credentials"
             return render_template("employee/employee_login.html", error=error)
 
@@ -60,7 +64,12 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
 
         employee = emp_repo.get_employee_by_id(session["empoyee_id"])
 
-        if employee is None:
+        # if employee is None:
+        #     error = "Could not find employee"
+        #     return render_template("employee/profile.html", error = error)
+
+
+        if not employee:
             error = "Could not find employee"
             return render_template("employee/profile.html", error = error)
 
@@ -92,7 +101,11 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
 
         employee = emp_repo.get_employee_by_id(employee_id)
 
-        if employee is None:
+        # if employee is None:
+        #     error = "Could not find employee"
+        #     return render_template("employee/change-password.html", error=error)
+
+        if not employee:
             error = "Could not find employee"
             return render_template("employee/change-password.html", error=error)
 
@@ -134,15 +147,24 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
 
 
     @employee_bp.route("view-products", methods=["GET", "POST"])
-    def search_product():
+    def search_products():
+        error: str
+        products: List[Product]
+
+        if "employee_id" not in session:
+            return redirect(url_for("employee.search_products"))
+
+        if request.method != "POST":
+            return render_template("employee/search_products.html")
+
         order_field: str  = request.form["order_field"]
         order_type: str   = request.form["order_type"]
         product_name: str = request.form["product_name"]
         product_id: str   = request.form["product_id"]
         start_index: str  = request.form["start_index"]
         end_index: str    = request.form["end_index"]
-        products: List[Product]
-        error: str
+
+        
 
         # is order_field valid?
         if order_field != "name" and order_field != "quantity":
