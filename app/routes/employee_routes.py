@@ -131,8 +131,10 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
 
     @employee_bp.route("view-products", methods=["GET", "POST"])
     def search_products():
-        error: str
-        products: List[Product]
+        error: str = ""
+        products: List[Product] = []
+        start_index_int: int
+        end_index_int: int
 
         if "employee_id" not in session:
             return redirect(url_for("employee.login"))
@@ -140,29 +142,33 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
         if request.method != "POST":
             return render_template("employee/search_products.html")
 
-        order_field: str  = request.form["order_field"]
-        order_type: str   = request.form["order_type"]
-        product_name: str = request.form["product_name"]
-        product_id: str   = request.form["product_id"]
-        start_index: str  = request.form["start_index"]
-        end_index: str    = request.form["end_index"]
+        order_field: Optional[str]  = request.form.get("order_field")
+        order_type: Optional[str]   = request.form.get("order_type")
+        product_name: Optional[str] = request.form.get("product_name")
+        product_id: Optional[str]   = request.form.get("product_id")
+        start_index: Optional[str]  = request.form.get("start_index")
+        end_index: Optional[str]    = request.form.get("end_index")
+
+        if start_index is not None and end_index is not None:
+            try:
+                start_index_int = int(start_index)
+                end_index_int   = int(end_index)
+            except:
+                error = "From and To fields must be numbers"
+                return render_template("search_products.html", error=error, products=products)
 
         # is order_field valid?
         if order_field != "name" and order_field != "quantity":
-            products = prod_repo.search_products(None, None, product_name, product_id, int(start_index), int(end_index))
+            products = prod_repo.search_products(None, None, product_name, product_id, start_index_int, end_index_int)
+        else:
         # No need to check order_type, ascending is default unless descending is specified
-
-        try:
-            products = prod_repo.search_products(order_field, order_type, product_name, product_id, int(start_index), int(end_index))
-        except:
-            error = "Could not perform operation"
-            return render_template("search_products.html", error=error)
+            products = prod_repo.search_products(order_field, order_type, product_name, product_id, start_index_int, end_index_int)
 
         if not products:
             error = "No products found"
-            return render_template("search_products.html", error=error)
+            return render_template("search_products.html", error=error, products=products)
 
-        return render_template("search_products.html", products=products)
+        return render_template("search_products.html", error=error, products=products)
 
 
     @employee_bp.route("/view-product", methods=["GET", "POST"])
