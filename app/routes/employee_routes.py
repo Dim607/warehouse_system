@@ -164,8 +164,6 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
         start_index: str  = request.form["start_index"]
         end_index: str    = request.form["end_index"]
 
-        
-
         # is order_field valid?
         if order_field != "name" and order_field != "quantity":
             products = prod_repo.search_products(None, None, product_name, product_id, int(start_index), int(end_index))
@@ -173,7 +171,7 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
 
         try:
             products = prod_repo.search_products(order_field, order_type, product_name, product_id, int(start_index), int(end_index))
-        except Exception as e:
+        except:
             error = "Could not perform operation"
             return render_template("search_products.html", error=error)
 
