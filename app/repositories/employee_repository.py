@@ -7,14 +7,14 @@ Avoid Singleton pattern, use Dependency Injection
 This makes testing quicker
 """
 class EmployeeRepository:
-    employee_collection: Collection
+    user_collection: Collection
 
     def __init__(self, employee_collection: Collection) -> None:
-        self.employee_collection = employee_collection
+        self.user_collection = employee_collection
 
 
     def get_employee_by_id(self, id: str) -> Employee | None:
-        result = self.employee_collection.find_one({"id": id})
+        result = self.user_collection.find_one({"id": id})
 
         if result is None:
             return None
@@ -34,7 +34,7 @@ class EmployeeRepository:
             ]
         }
 
-        result = self.employee_collection.find_one(query)
+        result = self.user_collection.find_one(query)
 
         if result is None:
             return None
@@ -44,7 +44,7 @@ class EmployeeRepository:
 
     # change the password of the employee with the corresponding id
     def change_password(self, id: str, password: str) -> bool:
-        result = self.employee_collection.find_one_and_update(
+        result = self.user_collection.find_one_and_update(
             {"id": id},
             {"$set": {"password": password}}
         )

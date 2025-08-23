@@ -26,20 +26,18 @@ def create_server():
     db                    = client[server.config["MONGO_DATABASE"]]
     admin_collection      = db["admin"]
     unit_collection       = db["unit"]
-    employee_collection   = db["employee"]
-    supervisor_collection = db["supervisor"]
     product_collection    = db["product"]
+    user_collection       = db["user"]
 
     # Attach to server
     server.db                    = db
     server.admin_collection      = admin_collection
     server.unit_collection       = unit_collection
-    server.employee_collection   = employee_collection
-    server.supervisor_collection = supervisor_collection
     server.product_collection    = product_collection
+    server.user_collection       = user_collection
 
     # Initialize repositories
-    emp_repo = EmployeeRepository(server.employee_collection)
+    emp_repo = EmployeeRepository(server.user_collection)
     # sup_repo = 
     # adm_repo = 
     # unt_repo = 
