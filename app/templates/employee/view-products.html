@@ -18,17 +18,8 @@
       </tr>
       {% for product in products %}
         <tr>
-          <td>{{ product.id }}</td>
           <td>{{ product.name }}</td>
           <td>{{ product.quantity }}</td>
-          <td>{{ product.sold_quantity }}</td>
-          <td>{{ product.weight }}</td>
-          <td>{{ product.volume }}</td>
-          <td>{{ product.category }}</td>
-          <td>{{ product.purchase_price }}</td>
-          <td>{{ product.selling_price }}</td>
-          <td>{{ product.manufacturer }}</td>
-          <td>{{ product.unit_gain}}</td>
         </tr>
       {% endfor %}
     </table>
