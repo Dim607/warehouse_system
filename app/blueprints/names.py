@@ -1,0 +1,5 @@
+AUTH_BP       = "auth"
+EMPLOYEE_BP   = "employee"
+SUPERVISOR_BP = "supervisor"
+ADMIN_BP      = "admin"
+PRODUCT_BP    = "product"

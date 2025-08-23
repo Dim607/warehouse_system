@@ -1,62 +1,32 @@
 from typing import List, Optional
 from flask import Blueprint, jsonify, url_for, request, session, redirect, render_template
+from app.blueprints.names import EMPLOYEE_BP, AUTH_BP #type: ignore
 from app.model.product import Product
-from app.repositories import product_repository
 from app.repositories.employee_repository import EmployeeRepository
 from app.repositories.product_repository import ProductRepository
 
 
 def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRepository) -> Blueprint:
-    employee_bp = Blueprint("employee", __name__, url_prefix="/employee")
+    employee_bp = Blueprint(EMPLOYEE_BP, __name__, url_prefix="/employee")
 
     @employee_bp.route("/", methods=["GET"])
     def home():
         if "employee_id" in session:
             return render_template("employee/employee_dashboard.html")
-        return redirect(url_for("employee.login"))
-
-
-    """
-    employee_login()
-    - Maybe enrypt the id before saving it in session variable
-    """
-    @employee_bp.route("/login", methods=["GET", "POST"])
-    def login():
-        error = None
-
-        if request.method != "POST":
-            return render_template("employee/employee_login.html")
-
-        username = request.form["username"]
-        password = request.form["password"]
-        unit_id  = request.form["unit_id"]
-        employee = emp_repo.get_employee(username, password, unit_id)
-
-        if employee is None:
-            error = "Invalid credentials"
-            return render_template("employee/employee_login.html", error=error)
-
-        session["employee_id"] = employee.id
-        return redirect(url_for("employee.dashboard"))
-
-
-    @employee_bp.route("/logout", methods=["GET"])
-    def logout():
-        session.pop("employee_id")
-        return redirect(url_for("employee.login"))
+        return redirect(url_for(f"{AUTH_BP}.login"))
 
 
     @employee_bp.route("/dashboard", methods=["POST", "GET"])
     def dashboard():
         if "employee_id" not in session:
-            return redirect(url_for("employee.login"))
+            return redirect(url_for(f"{AUTH_BP}.login"))
         return render_template("employee/employee_dashboard.html")
 
 
     @employee_bp.route("/profile", methods=["GET"])
     def show_profile():
         if "employee_id" not in session:
-            return redirect(url_for("employee.login"))
+            return redirect(url_for(f"{AUTH_BP}.login"))
 
         employee = emp_repo.get_employee_by_id(session["empoyee_id"])
 
@@ -79,7 +49,7 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
         error = None
 
         if "employee_id" not in session:
-            return redirect(url_for("employee.login"))
+            return redirect(url_for(f"{AUTH_BP}.login"))
 
         if request.method != "POST":
             return render_template("employee/change-password.html")
@@ -115,7 +85,7 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
         products: List | None
 
         if "employee_id" not in session:
-            return redirect(url_for("employee.login"))
+            return redirect(url_for(f"{AUTH_BP}.login"))
 
         if request.method != "POST":
             return render_template("employee/view_products.html")
@@ -136,7 +106,7 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
         end_index_int: int
 
         if "employee_id" not in session:
-            return redirect(url_for("employee.login"))
+            return redirect(url_for(f"{AUTH_BP}.login"))
 
         if request.method != "POST":
             return render_template("employee/search_products.html")
@@ -177,7 +147,7 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
         product: Optional[Product] = None
 
         if "employee_id" not in session:
-            return redirect(url_for("employee.login"))
+            return redirect(url_for(f"{AUTH_BP}.login"))
 
         # Case 1: clicked on info link
         if product_id:

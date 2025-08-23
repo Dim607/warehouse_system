@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head></head>
+  <body>
+    <table>
+      <tr>
+        <th>name</th>
+        <th>quantity</th>
+        <th>action</th>
+      </tr>
+      {% for product in products %}
+      <tr>
+        <td>{{ product.name }}</td>
+        <td>{{ product.quantity }}</td>
+        <td>
+          <form action="{{ url_for('employee.') }}" method="post">
+            <!-- the id is needed for the search of a product -->
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <input type="submit" value="View info">
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>
