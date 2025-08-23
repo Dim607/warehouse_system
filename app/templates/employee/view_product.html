@@ -2,14 +2,14 @@
 <html>
   <head></head>
   <body>
-    <form>
+    <form action="{{ url_for('employee.view_product') }}" method="post">
       <table>
         <tr>
           <td>
             <label for="product-id-input">Product id:</label>
           </td>
           <td colspan="2">
-            <input type="text" id="product-id-input" name="product_id">
+            <input type="text" id="product-id-input" name="product_id" value="{{ product_id }}">
           </td>
         </tr>
       </table>
@@ -19,8 +19,10 @@
     {% if error %}
     <p style="color: red;">{{ error }}</p>
     {% endif %}
-    
+
     <br>
+
+    {% if product %}
     <table>
       <tr>
         <th>id</th>
@@ -35,7 +37,6 @@
         <th>manufacturer</th>
         <th>unit_gain</th>
       </tr>
-      {% if product %}
         <tr>
           <td>{{ product.id }}</td>
           <td>{{ product.name }}</td>
@@ -49,8 +50,8 @@
           <td>{{ product.manufacturer }}</td>
           <td>{{ product.unit_gain}}</td>
         </tr>
-      {% endif %}
     </table>
+    {% endif %}
   </body>
 </html>
 
