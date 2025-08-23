@@ -109,8 +109,8 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
         return render_template("employee/change-password.html")
 
 
-    @employee_bp.route("/view-products", methods=["GET", "POST"])
-    def view_products():
+    @employee_bp.route("products", methods=["GET", "POST"])
+    def get_all_products():
         error = None
         products: List | None
 
@@ -118,17 +118,17 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
             return redirect(url_for("employee.login"))
 
         if request.method != "POST":
-            return render_template("employee/view-products.html")
+            return render_template("employee/view_products.html")
 
         products = prod_repo.get_products()
 
         if not products:
             error = "No products found"
 
-        return render_template("employee/view-products.html", error=error, products=[product.to_dict() for product in products])
+        return render_template("employee/products.html", error=error, products=[product.to_dict() for product in products])
 
 
-    @employee_bp.route("view-products", methods=["GET", "POST"])
+    @employee_bp.route("search-products", methods=["GET", "POST"])
     def search_products():
         error: str = ""
         products: List[Product] = []
@@ -171,29 +171,59 @@ def create_employee_blueprint(emp_repo: EmployeeRepository, prod_repo: ProductRe
 
 
     @employee_bp.route("/view-product", methods=["GET", "POST"])
-    def view_product():
+    @employee_bp.route("/products/<product_id>", methods=["GET"])
+    def view_product(product_id: Optional[str] = None):
         error: str = ""
         product: Optional[Product] = None
 
         if "employee_id" not in session:
             return redirect(url_for("employee.login"))
 
+        # Case 1: clicked on info link
+        if product_id:
+            product = prod_repo.get_product_by_id(product_id)
+            if product is None:
+                error = "No products found"
+            return render_template(
+                "employee/view_product",
+                error      = error, 
+                product    = product,
+                product_id = product_id
+            )
+
+        # Case 2: manual search
+        # The user enters the products id
+        # If GET just show the page
         if request.method != "POST":
-            return render_template("employee/view_product")
+            return render_template(
+                "employee/view_product",
+                error      = error, 
+                product    = product,
+                product_id = product_id
+            )
 
-        id = request.form.get("product_id")
+        product_id = request.form.get("product_id")
 
-        if id is None:
-            error = "No products found"
-            return render_template("employee/view_product", error=error, product=product)
+        if not product_id:
+            error = "Please enter a products id"
+            return render_template(
+                "employee/view_product",
+                error      = error, 
+                product    = product,
+                product_id = product_id
+            )
 
-        product = prod_repo.get_product_by_id(id)
+        product = prod_repo.get_product_by_id(product_id)
 
         if product is None:
             error = "No products found"
-            return render_template("employee/view_product", error=error, product=product)
 
-        return render_template("employee/view_product", error=error, product=product)
+        return render_template(
+            "employee/view_product",
+            error      = error, 
+            product    = product,
+            product_id = product_id
+        )
 
 
     def sell_product():
