@@ -1,11 +1,11 @@
 from flask import Blueprint, url_for, request, session, redirect, render_template
 from app.model.admin import Admin
 from app.model.supervisor import Supervisor
-from app.repositories.employee_repository import EmployeeRepository
-from app.blueprints.names import ADMIN_BP, EMPLOYEE_BP, AUTH_BP, SUPERVISOR_BP #type: ignore
+from app.blueprints.names import ADMIN_BP, EMPLOYEE_BP, AUTH_BP, SUPERVISOR_BP
+from app.repositories.user_repository import UserRepository
 
 
-def create_auth_blueprint(emp_repo: EmployeeRepository,) -> Blueprint:
+def create_auth_blueprint(user_repo: UserRepository,) -> Blueprint:
     auth_bp = Blueprint(AUTH_BP, __name__, template_folder="templates")
 
 
@@ -20,7 +20,7 @@ def create_auth_blueprint(emp_repo: EmployeeRepository,) -> Blueprint:
         password = request.form["password"]
         unit_id  = request.form["unit_id"]
 
-        user = emp_repo.get_employee(username, password, unit_id)
+        user = user_repo.get_user(username, password, unit_id)
 
         # if user is None:
         #     error = "Invalid credentials"
@@ -46,10 +46,11 @@ def create_auth_blueprint(emp_repo: EmployeeRepository,) -> Blueprint:
         return redirect(url_for(f"{EMPLOYEE_BP}.dashboard"))
 
 
-
     @auth_bp.route("/logout", methods=["GET"])
     def logout():
         session.pop("employee_id")
+        session.pop("supervisor_id")
+        session.pop("admin_id")
         return redirect(url_for(f"{AUTH_BP}.login"))
 
 
