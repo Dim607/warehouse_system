@@ -1,7 +1,7 @@
+from  __future__ import annotations # for pyright typechecking
 from typing import Optional
 from model.product import Product
-from model.supervisor import Supervisor
-from model.unit import Unit
+from app.model.unit import Unit
 import uuid
 
 
@@ -17,30 +17,41 @@ class Admin:
         self.username: str     = username
         self.password: str     = password
 
+    def __eq__(self, other: Admin) -> bool:
+        return self.id == other.id
+
 
     def __str__(self) -> str:
-        return ""
+        return f"{self.id}, {self.username}, {self.password}"
 
 
     def __repr__(self) -> str:
-        return ""
+        return f"Admin('{self.id}', '{self.username}', '{self.password}')"
 
 
     def to_dict(self) -> dict:
         return {
-            "id": self.id,
+            "id":       self.id,
             "username": self.username,
             "password": self.password
         }
 
     @classmethod
     def from_dict(cls, data):
+        attributes = ["id", "username", "password"]
+
+
+        for attr in attributes:
+            if data.get(attr) is None:
+                raise Exception(f"Attribute {attr} cannot be None")
+
         return cls (
-            data.get("id"),
-            data.get("username"),
-            data.get("password")
+            id       = data.get("id"),
+            username = data.get("username"),
+            password = data.get("password")
         )
 
+    
     def add_product(
         self,
         unit: Unit,
@@ -70,6 +81,7 @@ class Admin:
             unit_gain = product_unit_gain,
         )
         return product
+
 
     def create_unit(self):
         pass

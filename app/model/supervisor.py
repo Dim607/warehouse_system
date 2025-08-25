@@ -1,5 +1,5 @@
 from typing import Optional
-from model.employee import Employee
+from app.model.employee import Employee
 
 
 class Supervisor(Employee):
@@ -21,11 +21,12 @@ class Supervisor(Employee):
             password,
             unit_id,
             unit_name,
+            "supervisor"
         )
 
 
     # it is not specified if the supervisor should also assign a username
-    def create_employee(self, name:str, surname: str, username: str, password: str) -> Employee:
+    def create_employee(self, name: str, surname: str, username: str, password: str) -> Employee:
         employee = Employee(
             id        = None,
             name      = name,
@@ -34,5 +35,6 @@ class Supervisor(Employee):
             password  = password,
             unit_id   = self.unit_id,
             unit_name = self.unit_name,
+            role      = "employee"
         )
         return employee

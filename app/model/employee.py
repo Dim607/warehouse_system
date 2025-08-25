@@ -1,9 +1,19 @@
 from  __future__ import annotations # for pyright typechecking
+from enum import Enum
 from typing import Optional
 import uuid
 
 
 class Employee:
+    id: Optional[str]
+    name: str
+    surname: str
+    username: str
+    password: str
+    unit_id: str
+    unit_name: str
+    role: str
+
     def __init__(
         self,
         id: Optional[str],
@@ -13,15 +23,25 @@ class Employee:
         password: str,
         unit_id: str,
         unit_name: str,
+        role: str
     ):
-        self.id: Optional[str] = id if id is not None else str(uuid.uuid4())
-        self.name: str         = name
-        self.surname: str      = surname
-        self.username: str     = username
-        self.password: str     = password
-        self.unit_id: str      = unit_id
-        self.unit_name: str    = unit_name
+        self.id           = id if id is not None else str(uuid.uuid4())
+        self.name         = name
+        self.surname      = surname
+        self.username     = username
+        self.password     = password
+        self.unit_id      = unit_id
+        self.unit_name    = unit_name
+        self.role         = self._set_role(role)
 
+
+    def _set_role(self, role: str) -> str:
+        """
+        If the role is incorrect assign employee as default
+        """
+        if role not in ["employee", "supervisor"]:
+            return "employee"
+        return role
 
     def __eq__(self, other: Employee) -> bool:
         return self.id == other.id
@@ -44,13 +64,14 @@ class Employee:
             "password":  self.password,
             "unit_id":   self.unit_id,
             "unit_name": self.unit_name,
+            "role":      self.role
         }
 
 
     @classmethod
     def from_dict(cls, data):
         # id can be None so dont include it in the attr list
-        attributes = ["name", "surname", "username", "password", "unit_id", "unit_name"]
+        attributes = ["name", "surname", "username", "password", "unit_id", "unit_name", "role"]
 
         for attr in attributes:
             if data.get(attr) is None:
@@ -64,6 +85,7 @@ class Employee:
             password  = data.get("password"),
             unit_id   = data.get("unit_id"),
             unit_name = data.get("unit_name"),
+            role      = data.get("role")
         )
         return employee
 
