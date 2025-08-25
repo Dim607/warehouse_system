@@ -1,5 +1,5 @@
 from typing import List, Optional
-from flask import Blueprint, jsonify, url_for, request, session, redirect, render_template
+from flask import Blueprint, request, render_template
 from app.blueprints.names import PRODUCT_BP #type: ignore
 from app.model.product import Product
 from app.repositories.product_repository import ProductRepository
@@ -7,10 +7,10 @@ from app.utils.auth_utils import login_required
 
 
 def create_product_blueprint(prod_repo: ProductRepository):
-    product_bp = Blueprint(PRODUCT_BP, __name__, template_folder="templates")
+    product_bp = Blueprint(PRODUCT_BP, __name__)
 
 
-    @product_bp.route("products", methods=["GET", "POST"])
+    @product_bp.route("/products", methods=["GET", "POST"])
     @login_required
     def get_all_products():
         error = None
@@ -27,7 +27,7 @@ def create_product_blueprint(prod_repo: ProductRepository):
         return render_template("product/view_products.html", error=error, products=[product.to_dict() for product in products])
 
 
-    @product_bp.route("search-products", methods=["GET", "POST"])
+    @product_bp.route("/search-products", methods=["GET", "POST"])
     @login_required
     def search_products():
         error: str = ""
@@ -123,4 +123,7 @@ def create_product_blueprint(prod_repo: ProductRepository):
 
     @login_required
     def sell_product():
-        return jsonify({}), 200
+        pass
+
+
+    return product_bp
