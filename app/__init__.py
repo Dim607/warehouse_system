@@ -2,11 +2,9 @@ import os
 from pymongo import MongoClient
 from app.blueprints.auth import create_auth_blueprint
 from app.blueprints.employee import create_employee_blueprint
-from app.blueprints.product import create_product_blueprint
 from app.custom_flask import CustomFlask
 from app.repositories.employee_repository import EmployeeRepository
 from app.repositories.product_repository import ProductRepository
-from app.repositories.user_repository import UserRepository
 
 
 def create_server():
@@ -44,12 +42,10 @@ def create_server():
     # adm_repo = 
     # unt_repo = 
     prd_repo = ProductRepository(server.product_collection)
-    usr_repo = UserRepository(server.user_collection)
 
     # Add blueprints for routes
     # server.register_blueprint(employee_routes.create_employee_blueprint(emp_repo, prd_repo))
+    server.register_blueprint(create_employee_blueprint(emp_repo, prd_repo))
     server.register_blueprint(create_auth_blueprint(emp_repo))
-    server.register_blueprint(create_employee_blueprint(usr_repo, emp_repo, prd_repo))
-    server.register_blueprint(create_product_blueprint(prd_repo))
 
     return server
