@@ -1,3 +1,4 @@
+from typing import List
 from pymongo.database import Collection
 from app.model.employee import Employee
 from app.model.supervisor import Supervisor
@@ -43,3 +44,45 @@ class EmployeeRepository:
             return None
 
         return Employee.from_dict(result)
+
+
+    def insert_employee(
+        self,
+        name: str,
+        surname: str,
+        username: str,
+        password: str,
+        unit_id: str,
+        unit_name: str
+    ):
+        # create an employee obnect to validate fields
+        employee = Employee.from_dict({
+            "name":      name,
+            "surname":   surname,
+            "username":  username,
+            "password":  password,
+            "unit_id":   unit_id,
+            "unit_name": unit_name,
+            "role":      "employee"
+        })
+
+        # turn the previously created employee object into a dict and insert it to the user collection
+        result = self.user_collection.insert_one(employee.to_dict())
+
+        return {
+            "acknowledged": result.acknowledged,
+            "inserted_id": str(result.inserted_id)
+        }
+
+
+    def insert_employees(self, employees: List) -> bool:
+        to_be_inserted = []
+        for employee in employees:
+            try:
+                Employee.from_dict(employee)
+            except:  # if one employee has wrong format stop
+                return False
+
+        self.user_collection.insert_many(employees)
+        return True
+
