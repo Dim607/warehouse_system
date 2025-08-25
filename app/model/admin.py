@@ -1,6 +1,6 @@
 from  __future__ import annotations # for pyright typechecking
 from typing import Optional
-from model.product import Product
+from app.model.product import Product
 from app.model.unit import Unit
 import uuid
 
@@ -54,7 +54,6 @@ class Admin:
     
     def add_product(
         self,
-        unit: Unit,
         product_id: Optional[str],
         product_name: str,
         product_quantity: int,
