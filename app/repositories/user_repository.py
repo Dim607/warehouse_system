@@ -29,12 +29,12 @@ class UserRepository:
     # If an Employee object cannot be created from the data in the db an exception is raised
     def get_user(self, username: str, password: str, unit_id: str):
         query = {
-            "$and": [
-                {"username": username},
-                {"password": password},
-                {"unit_id" : unit_id},
-            ]
+            "username": username,
+            "password": password,
+            "unit_id":  unit_id,
         }
+
+        print(query)
 
         result = self.user_collection.find_one(query)
 
