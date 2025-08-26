@@ -1,8 +1,6 @@
 from typing import List
 from pymongo.database import Collection
 from app.model.employee import Employee
-from app.model.supervisor import Supervisor
-from app.model.admin import Admin
 
 
 """
@@ -75,14 +73,16 @@ class EmployeeRepository:
         }
 
 
-    def insert_employees(self, employees: List) -> bool:
+    def insert_employees(self, employees: List):
         to_be_inserted = []
         for employee in employees:
             try:
-                Employee.from_dict(employee)
-            except:  # if one employee has wrong format stop
-                return False
+                emp = Employee.from_dict(employee)
+                to_be_inserted.append(emp.to_dict())
+            except Exception as e:  # if one employee has wrong format stop
+                raise ValueError(f"Invalid employee format: {employee}") from e
 
-        self.user_collection.insert_many(employees)
-        return True
+        result = self.user_collection.insert_many(to_be_inserted)
+
+        return result
 
