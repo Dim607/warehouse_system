@@ -3,6 +3,8 @@ from app.model.employee import Employee
 
 
 class Supervisor(Employee):
+    role: str = "supervisor"
+
     def __init__(
         self,
         id: Optional[str],
@@ -21,7 +23,6 @@ class Supervisor(Employee):
             password,
             unit_id,
             unit_name,
-            "supervisor"
         )
 
 
@@ -35,6 +36,5 @@ class Supervisor(Employee):
             password  = password,
             unit_id   = self.unit_id,
             unit_name = self.unit_name,
-            role      = "employee"
         )
         return employee

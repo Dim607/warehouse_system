@@ -12,7 +12,7 @@ class Employee:
     password: str
     unit_id: str
     unit_name: str
-    role: str
+    role: str = "employee"
 
     def __init__(
         self,
@@ -23,7 +23,6 @@ class Employee:
         password: str,
         unit_id: str,
         unit_name: str,
-        role: str
     ):
         self.id           = id if id is not None else str(uuid.uuid4())
         self.name         = name
@@ -32,16 +31,7 @@ class Employee:
         self.password     = password
         self.unit_id      = unit_id
         self.unit_name    = unit_name
-        self.role         = self._set_role(role)
 
-
-    def _set_role(self, role: str) -> str:
-        """
-        If the role is incorrect assign employee as default
-        """
-        if role not in ["employee", "supervisor"]:
-            return "employee"
-        return role
 
     def __eq__(self, other: Employee) -> bool:
         return self.id == other.id
@@ -50,7 +40,7 @@ class Employee:
     def __str__(self) -> str:
         return f"{self.id}, {self.name}, {self.surname}, {self.username}, {self.password}, {self.unit_id}, {self.unit_name}"
 
-    
+
     def __repr__(self) -> str:
         return f"Employee('{self.id}', '{self.name}', '{self.surname}', '{self.username}', '{self.password}', '{self.unit_id}', '{self.unit_name}')"
 
@@ -71,7 +61,7 @@ class Employee:
     @classmethod
     def from_dict(cls, data):
         # id can be None so dont include it in the attr list
-        attributes = ["name", "surname", "username", "password", "unit_id", "unit_name", "role"]
+        attributes = ["name", "surname", "username", "password", "unit_id", "unit_name"]
 
         for attr in attributes:
             if data.get(attr) is None:
@@ -85,7 +75,6 @@ class Employee:
             password  = data.get("password"),
             unit_id   = data.get("unit_id"),
             unit_name = data.get("unit_name"),
-            role      = data.get("role")
         )
         return employee
 
