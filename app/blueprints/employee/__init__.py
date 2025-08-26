@@ -1,6 +1,6 @@
 from typing import List, Optional
 from flask import Blueprint, jsonify, url_for, request, session, redirect, render_template
-from app.blueprints.names import EMPLOYEE_BP #type: ignore
+from app.blueprints.names import EMPLOYEE_BP
 from app.model.product import Product
 from app.repositories.employee_repository import EmployeeRepository
 from app.repositories.product_repository import ProductRepository
@@ -9,18 +9,13 @@ from app.utils.auth_utils import login_required
 
 
 def create_employee_blueprint(user_repo: UserRepository, emp_repo: EmployeeRepository, prod_repo: ProductRepository) -> Blueprint:
-    employee_bp = Blueprint(EMPLOYEE_BP, __name__, url_prefix="/employee")
+    employee_bp = Blueprint(EMPLOYEE_BP, __name__, url_prefix="/employee", template_folder="templates")
+
 
     @employee_bp.route("/", methods=["GET"])
     @login_required
-    def home():
+    def dashboard():
         return render_template("employee/employee_dashboard.html")
-
-
-    # @employee_bp.route("/dashboard", methods=["POST", "GET"])
-    # @login_required
-    # def dashboard():
-    #     return render_template("employee/employee_dashboard.html")
 
 
     @employee_bp.route("/profile", methods=["GET"])
@@ -73,8 +68,6 @@ def create_employee_blueprint(user_repo: UserRepository, emp_repo: EmployeeRepos
             return render_template("employee/change-password.html", error=error)
 
         return render_template("employee/change-password.html")
-
-
 
 
     return employee_bp
