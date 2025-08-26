@@ -22,17 +22,9 @@ def create_auth_blueprint(user_repo: UserRepository,) -> Blueprint:
 
         user = user_repo.get_user(username, password, unit_id)
 
-        # if user is None:
-        #     error = "Invalid credentials"
-        #     return render_template("employee/employee_login.html", error=error)
-        #
-        # session["employee_id"] = user.id
-        # return redirect(url_for(f"{EMPLOYEE_BP}.dashboard"))
-
-
         if user is None:
             error = "Invalid credentials"
-            return render_template("employee/employee_login.html", error=error)
+            return render_template(f"{AUTH_BP}/login.html", error=error)
 
         if isinstance(user, Admin):
             session["admin_id"] = user.id
