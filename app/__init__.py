@@ -27,9 +27,15 @@ def create_server():
     client                = MongoClient(server.config["MONGO_HOST"], server.config["MONGO_PORT"])
     db                    = client[server.config["MONGO_DATABASE"]]
     admin_collection      = db["admin"]
-    unit_collection       = db["unit"]
-    product_collection    = db["product"]
-    user_collection       = db["user"]
+    unit_collection       = db["units"]
+    product_collection    = db["products"]
+    user_collection       = db["users"]
+
+    # Create indexes to avoid duplicates
+    unit_collection.create_index("id", unique=True)
+    product_collection.create_index("id", unique=True)
+    user_collection.create_index("id", unique=True)
+    user_collection.create_index({"username": 1, "unit_id": 1}, unique=True)
 
     # Attach to server
     server.db                    = db
