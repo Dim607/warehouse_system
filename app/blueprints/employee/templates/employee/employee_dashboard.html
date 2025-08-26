@@ -1,8 +1,34 @@
-
 <!DOCTYPE html>
 <html>
   <head></head>
   <body>
-    <h1>HELLO</h1>
+    <h1>Dashboard</h1>
+    <table>
+      <tr>
+        <td>
+          <a href="{{ url_for('employee.show_profile') }}">Show profile</a>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <a href="{{ url_for('employee.change_password') }}">Change password</a>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <a href="{{ url_for('product.get_all_products') }}">Show products</a>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <a href="{{ url_for('product.search_products') }}">Search product</a>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <a href="{{ url_for('product.view_product') }}">View product</a>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>
