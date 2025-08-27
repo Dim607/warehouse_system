@@ -1,5 +1,5 @@
 from typing import List, Optional
-from flask import Blueprint, jsonify, url_for, request, session, redirect, render_template
+from flask import Blueprint, jsonify, url_for, request, session, redirect, render_template, flash
 from app.blueprints.names import EMPLOYEE_BP
 from app.model.product import Product
 from app.repositories.employee_repository import EmployeeRepository
@@ -41,15 +41,22 @@ def create_employee_blueprint(user_repo: UserRepository, emp_repo: EmployeeRepos
     @login_required
     def change_password():
         error = None
+        employee_id = session["employee_id"]
 
         if request.method != "POST":
             return render_template("employee/change-password.html")
 
-        employee_id = session["employee_id"]
-
         # the old password is used for verification
-        password_old = request.form["password_old"]
-        password_new = request.form["password_new"]
+        password_old = request.form.get("password_old")
+        password_new = request.form.get("password_new")
+
+        if password_old == "" or password_new == "" or password_old is None or password_new is None:
+            error = "Both fields are required"
+            return render_template("employee/change-password.html", error=error)
+
+        if password_old == password_new:
+            error = "Previous password cannot be the same as new password"
+            return render_template("employee/change-password.html", error=error)
 
         employee = emp_repo.get_employee_by_id(employee_id)
 
@@ -67,6 +74,7 @@ def create_employee_blueprint(user_repo: UserRepository, emp_repo: EmployeeRepos
             error = "Could not change password"
             return render_template("employee/change-password.html", error=error)
 
+        flash("Password successfully changed!", "success")
         return render_template("employee/change-password.html")
 
 
