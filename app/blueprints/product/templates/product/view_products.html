@@ -13,7 +13,8 @@
         <td>{{ product.name }}</td>
         <td>{{ product.quantity }}</td>
         <td>
-          <form action="{{ url_for('employee.') }}" method="post">
+          <!-- TODO check the url it is propably different -->
+          <form action="{{ url_for('product.view_product') }}" method="post">
             <!-- the id is needed for the search of a product -->
             <input type="hidden" name="product_id" value="{{ product.id }}">
             <input type="submit" value="View info">
