@@ -21,7 +21,7 @@ def create_employee_blueprint(user_repo: UserRepository, emp_repo: EmployeeRepos
     @employee_bp.route("/profile", methods=["GET"])
     @login_required
     def show_profile():
-        employee = emp_repo.get_employee_by_id(session["empoyee_id"])
+        employee = emp_repo.get_employee_by_id(session["employee_id"])
 
         if employee is None:
             error = "Could not find employee"
