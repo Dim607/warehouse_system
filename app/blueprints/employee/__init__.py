@@ -1,7 +1,5 @@
-from typing import List, Optional
-from flask import Blueprint, jsonify, url_for, request, session, redirect, render_template, flash
+from flask import Blueprint, request, session, render_template, flash
 from app.blueprints.names import EMPLOYEE_BP
-from app.model.product import Product
 from app.repositories.employee_repository import EmployeeRepository
 from app.repositories.product_repository import ProductRepository
 from app.repositories.user_repository import UserRepository
