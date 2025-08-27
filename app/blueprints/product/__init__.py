@@ -1,13 +1,13 @@
 from typing import List, Optional
 from flask import Blueprint, request, render_template
-from app.blueprints.names import PRODUCT_BP #type: ignore
+from app.blueprints.names import PRODUCT_BP
 from app.model.product import Product
 from app.repositories.product_repository import ProductRepository
 from app.utils.auth_utils import login_required
 
 
 def create_product_blueprint(prod_repo: ProductRepository):
-    product_bp = Blueprint(PRODUCT_BP, __name__)
+    product_bp = Blueprint(PRODUCT_BP, __name__, template_folder="templates")
 
 
     @product_bp.route("/products", methods=["GET", "POST"])
@@ -80,7 +80,7 @@ def create_product_blueprint(prod_repo: ProductRepository):
             if product is None:
                 error = "No products found"
             return render_template(
-                "product/view_product",
+                "product/view_product.html",
                 error      = error, 
                 product    = product,
                 product_id = product_id
@@ -91,7 +91,7 @@ def create_product_blueprint(prod_repo: ProductRepository):
         # If GET just show the page
         if request.method != "POST":
             return render_template(
-                "product/view_product",
+                "product/view_product.html",
                 error      = error, 
                 product    = product,
                 product_id = product_id
@@ -102,7 +102,7 @@ def create_product_blueprint(prod_repo: ProductRepository):
         if not product_id:
             error = "Please enter a products id"
             return render_template(
-                "product/view_product",
+                "product/view_product.html",
                 error      = error, 
                 product    = product,
                 product_id = product_id
@@ -114,7 +114,7 @@ def create_product_blueprint(prod_repo: ProductRepository):
             error = "No products found"
 
         return render_template(
-            "product/view_product",
+            "product/view_product.html",
             error      = error, 
             product    = product,
             product_id = product_id
