@@ -1,32 +1,33 @@
 <!DOCTYPE html>
 <html>
-  <head></head>
+  <head>
+    <style>
+      table, th, td {
+        border: 2px solid;
+        border-collapse: collapse;
+      }
+    </style>
+  </head>
   <body>
     <h1>Profile</h1>
       <table>
         <tr>
-          <td>Name:</td>
-          <td> {{ name }} </td>
-        </tr> 
-        <tr>
-          <td>Surname:</td>
-          <td> {{ surname }} </td>
-        </tr> 
-        <tr>
-          <td>Username:</td>
-          <td> {{ username }} </td>
-        </tr> 
-        <tr>
-          <td>Unit id:</td>
-          <td> {{ unit_id }} </td>
+          <th>Name</th>
+          <th>Surname</th>
+          <th>Username</th>
+          <th>Unit id</th>
+          <th>Unit name</th>
         </tr>
         <tr>
-          <td>Unit name:</td>
+          <td> {{ name }} </td>
+          <td> {{ surname }} </td>
+          <td> {{ username }} </td>
+          <td> {{ unit_id }} </td>
           <td> {{ unit_name }} </td>
         </tr>
       </table>
 
-      <a href="{{ url_for(employee.dashboard) }}">Return to dashboard </a>
+      <a href="{{ url_for('employee.dashboard') }}">Return to dashboard </a>
 
     {% if error %}
     <p style="color: red;">{{ error }}</p>
