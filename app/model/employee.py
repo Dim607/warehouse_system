@@ -1,5 +1,4 @@
 from  __future__ import annotations # for pyright typechecking
-from enum import Enum
 from typing import Optional
 import uuid
 
