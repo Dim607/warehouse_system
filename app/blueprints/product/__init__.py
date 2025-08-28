@@ -74,7 +74,7 @@ def create_product_blueprint(prod_repo: ProductRepository):
         error: str = ""
         product: Optional[Product] = None
 
-        # Case 1: clicked on info link
+        # Case 1: Came here after viewing all products and choosing one
         if product_id:
             product = prod_repo.get_product_by_id(product_id)
             if product is None:
@@ -86,7 +86,7 @@ def create_product_blueprint(prod_repo: ProductRepository):
                 product_id = product_id
             )
 
-        # Case 2: manual search
+        # Case 2: manual search by entering a product's id
         # The user enters the products id
         # If GET just show the page
         if request.method != "POST":
