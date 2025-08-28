@@ -11,6 +11,18 @@ TODO
 """
 
 class Product:
+    id: Optional[str]
+    name: str
+    quantity: int
+    sold_quantity: int
+    weight: float
+    volume: float
+    category: str
+    purchase_price: float
+    selling_price: float
+    manufacturer: str
+    unit_gain: float
+
     def __init__(
         self,
         id: Optional[str],
@@ -19,7 +31,7 @@ class Product:
         sold_quantity: int,
         weight: float,
         volume: float,
-        category: str,  # TODO maybe add as collection to db
+        category: str,
         purchase_price: float,
         selling_price: float,
         manufacturer: str,
