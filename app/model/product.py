@@ -71,17 +71,17 @@ class Product:
 
     def to_dict(self):
         return {
-            "id":               self.id,
-            "name":             self.name,
-            "quantity":         self.quantity,
-            "sold_quantity":    self.sold_quantity,
-            "weight":           self.weight,
-            "volume":           self.volume,
-            "category":         self.category,
-            "purchase_price":   self.purchase_price,
-            "selling_price":    self.selling_price,
-            "manufacturer":     self.manufacturer,
-            "unit_gain":        self.unit_gain,
+            "id":             self.id,
+            "name":           self.name,
+            "quantity":       self.quantity,
+            "sold_quantity":  self.sold_quantity,
+            "weight":         self.weight,
+            "volume":         self.volume,
+            "category":       self.category,
+            "purchase_price": self.purchase_price,
+            "selling_price":  self.selling_price,
+            "manufacturer":   self.manufacturer,
+            "unit_gain":      self.unit_gain,
         }
 
     @classmethod
