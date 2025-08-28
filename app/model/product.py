@@ -74,19 +74,40 @@ class Product:
 
     @classmethod
     def from_dict(cls, data):
-        return cls(
-            data.get("id"),
-            data.get("name"),
-            data.get("quantity"),
-            data.get("sold_quantity"),
-            data.get("weight"),
-            data.get("volume"),
-            data.get("category"),
-            data.get("purchase_price"),
-            data.get("selling_price"),
-            data.get("manufacturer"),
-            data.get("unit_gain"),
+
+        # id can be None so dont include it in the attr list
+        attributes = [
+            "name",
+            "quantity",
+            "sold_quantity",
+            "weight",
+            "volume",
+            "category",
+            "purchase_price",
+            "selling_price",
+            "manufacturer",
+            "unit_gain"
+        ]
+
+        for attr in attributes:
+            if data.get(attr) is None:
+                raise Exception(f"Attribute {attr} cannot be None")
+
+        product = cls(
+            id             = data.get("id"),
+            name           = data.get("name"),
+            quantity       = data.get("quantity"),
+            sold_quantity  = data.get("sold_quantity"),
+            weight         = data.get("weight"),
+            volume         = data.get("volume"),
+            category       = data.get("category"),
+            purchase_price = data.get("purchase_price"),
+            selling_price  = data.get("selling_price"),
+            manufacturer   = data.get("manufacturer"),
+            unit_gain      = data.get("unit_gain"),
         )
+
+        return product
 
 
     def sell_product(self, sold_product: int):
@@ -95,15 +116,19 @@ class Product:
         self.unit_gain     = self.selling_price * sold_product
 
 
-    # Sorts in place based on product name
-    # if reverse = true -> sort in descending order
     @staticmethod
     def sort_name(product_list: list[Product], reverse: bool):
+        """
+        Sorts in place based on product name
+        if reverse = true -> sort in descending order
+        """
         product_list.sort(key=attrgetter("name"), reverse=reverse)
 
 
-    # Sorts in place based on product sold quantity
-    # if reverse = true -> sort in descending order
     @staticmethod
     def sort_sold_quantity(product_list: list[Product], reverse: bool):
+        """
+        Sorts in place based on product sold quantity
+        if reverse = true -> sort in descending order
+        """
         product_list.sort(key=attrgetter("sold_quantity"), reverse=reverse)        
