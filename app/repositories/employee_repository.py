@@ -29,12 +29,10 @@ class EmployeeRepository:
     # If an Employee object cannot be created from the data in the db an exception is raised
     def get_employee(self, username: str, password: str, unit_id: str) -> Optional[Employee]:
         query = {
-            "$and": [
-                {"username": username},
-                {"password": password},
-                {"unit_id":  unit_id},
-                {"role":     "employee"}
-            ]
+            "username": username,
+            "password": password,
+            "unit_id":  unit_id,
+            "role":     "employee"
         }
 
         result = self.user_collection.find_one(query)
