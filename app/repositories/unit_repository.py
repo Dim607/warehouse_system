@@ -22,6 +22,17 @@ class UnitRepository:
         return [Unit.from_dict(unit) for unit in result]
 
 
+    def get_all_units_ids(self) -> List[str]:
+        """
+        Get the ids of all the stored units
+
+        Returns the ids of all the stored units as a list of strings
+        """
+        cursor = self.unit_collection.find({}, projection={"id": 1, "_id": 0})
+        # instead of returning a list like: [{id: 1}, {id: 2}...], return [1, 2, ...]
+        return [unit.get("id") for unit in cursor if "id" in unit]
+
+
     def get_unit_by_id(self, id: str) -> Unit | None:
         """
         Get the unit with the specified id
