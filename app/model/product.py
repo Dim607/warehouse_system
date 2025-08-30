@@ -4,12 +4,6 @@ from typing import Optional
 from operator import attrgetter
 
 
-"""
-TODO
-- Maybe add functions: is_xfield_valid()
-- Maybe add category as collection to db
-"""
-
 class Product:
     id: Optional[str]
     name: str
@@ -53,7 +47,7 @@ class Product:
     def __eq__(self, other: Product) -> bool:
         return self.id == other.id
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.id}, {self.name}, \
                 {self.quantity}, {self.sort_sold_quantity}, \
                 {self.weight}, \
@@ -61,7 +55,7 @@ class Product:
                 {self.purchase_price}, {self.selling_price}, \
                 {self.manufacturer}, {self.unit_gain}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Product('{self.id}', '{self.name}', \
                         '{self.quantity}', '{self.sort_sold_quantity}', \
                         '{self.weight}', \
@@ -69,7 +63,24 @@ class Product:
                         '{self.purchase_price}', '{self.selling_price}', \
                         '{self.manufacturer}', '{self.unit_gain}',)"
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
+        """
+        Convert the Product instance into a dictionary.
+
+        Returns:
+            dict: A dictionary containing all the product attributes, including:
+            - `id`
+            - `name`
+            - `quantity`
+            - `sold_quantity`
+            - `weight`
+            - `volume`
+            - `category`
+            - `purchase_price`
+            - `selling_price`
+            - `manufacturer`
+            - `unit_gain`
+        """
         return {
             "id":             self.id,
             "name":           self.name,
@@ -85,8 +96,34 @@ class Product:
         }
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data) -> Product:
+        """
+        Create a Product instance from a dictionary.
 
+        This method validates that all required attributes are present and non-None.
+        Raises an error if any required attribute is missing.
+
+        Args:
+            data (dict): Dictionary containing the product attributes.
+            The following keys are required:
+            - `name`
+            - `quantity`
+            - `sold_quantity`
+            - `weight`
+            - `volume`
+            - `category`
+            - `purchase_price`
+            - `selling_price`
+            - `manufacturer`
+            - `unit_gain`
+            The key `id` is optional and may be None.
+
+        Returns:
+            Product: A Product instance initialized with the given attributes.
+
+        Raises:
+            ValueError: If any required attribute is missing or None.
+        """
         # id can be None so dont include it in the attr list
         attributes = [
             "name",
@@ -103,7 +140,7 @@ class Product:
 
         for attr in attributes:
             if data.get(attr) is None:
-                raise Exception(f"Attribute {attr} cannot be None")
+                raise ValueError(f"Attribute {attr} cannot be None")
 
         product = cls(
             id             = data.get("id"),
@@ -122,17 +159,29 @@ class Product:
         return product
 
 
-    def sell_product(self, sold_product: int):
+    def sell_product(self, sold_product: int) -> None:
+        """
+        Sells a product
+
+        Modifies the product parameters according to the amount of items sold
+        :param sold_product: The amount of items of a program to sell
+        """
         self.sold_quantity = self.sold_quantity + sold_product
         self.quantity      = self.quantity - sold_product
         self.unit_gain     = self.selling_price * sold_product
 
 
     @staticmethod
-    def sort_name(product_list: list[Product], reverse: bool):
+    def sort_name(product_list: list[Product], reverse: bool = False) -> None:
         """
-        Sorts in place based on product name
-        if reverse = true -> sort in descending order
+        Sort a list of Product objects in place by their name.
+
+        The list is sorted in ascending order by default. 
+        Set `reverse=True` to sort in descending order.
+
+        Args:
+            product_list (list[Product]): The list of products to sort.
+            reverse (bool, optional): If True, sort in descending order. Defaults to False.
         """
         product_list.sort(key=attrgetter("name"), reverse=reverse)
 
@@ -140,7 +189,13 @@ class Product:
     @staticmethod
     def sort_sold_quantity(product_list: list[Product], reverse: bool):
         """
-        Sorts in place based on product sold quantity
-        if reverse = true -> sort in descending order
+        Sort a list of Product objects in place by the quantity of items sold for each product.
+
+        The list is sorted in ascending order by default. 
+        Set `reverse=True` to sort in descending order.
+
+        Args:
+            product_list (list[Product]): The list of products to sort.
+            reverse (bool, optional): If True, sort in descending order. Defaults to False.
         """
-        product_list.sort(key=attrgetter("sold_quantity"), reverse=reverse)        
+        product_list.sort(key=attrgetter("sold_quantity"), reverse=reverse)
