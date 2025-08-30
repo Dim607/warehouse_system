@@ -14,13 +14,18 @@ class UnitRepository:
         self.unit_collection = unit_collection
 
 
+    def get_all_units(self) -> List[Unit]:
         """
-        TODO
-        IMPLEMENT
+        Get all the stored units
         """
-    def get_unit_by_id(self, id: str):
+        result = self.unit_collection.find()
+        return [Unit.from_dict(unit) for unit in result]
+
+
+    def get_unit_by_id(self, id: str) -> Unit | None:
         """
         Get the unit with the specified id
+
         :param id: A string specifying the id of the unit to retrieve from the database
         """
 
