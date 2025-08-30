@@ -17,6 +17,9 @@ class Unit:
 
 
     def to_dict(self) -> dict:
+        """
+        Return the product as a dict
+        """
         return {
             "id":     self.id,
             "name":   self.name,
@@ -26,11 +29,28 @@ class Unit:
 
     @classmethod
     def from_dict(cls, data):
-        return cls(
+        """
+        Get a unit object from a dictionary
+
+        Can raise an exception if any of the attributes `name` or `volume` are missing
+
+        :param data: A dictionary that has the unit's attributes as keys
+        """
+        # id can be None so dont include it in the attr list
+        attributes = ["name", "volume"]
+
+        for attr in attributes:
+            if data.get(attr) is None:
+                raise Exception(f"Attribute {attr} cannot be None")
+
+        unit = cls(
             data.get("id"),
             data.get("name"),
             data.get("volume")
         )
+
+        return unit 
+
 
     def add_product(self):
         pass
