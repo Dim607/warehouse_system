@@ -1,10 +1,9 @@
 from typing import List, Optional
-import pymongo
+from pymongo import ASCENDING, DESCENDING
 from pymongo.database import Collection
 from pymongo.results import InsertOneResult
 from app.model.product import Product
 from app.model.unit import Unit
-from app.repositories import unit_repository
 from app.repositories.unit_repository import UnitRepository
 
 
@@ -63,9 +62,9 @@ class ProductRepository:
 
         if order_field is not None:
             if order_type == "descending":
-                cursor = cursor.sort(order_field, pymongo.DESCENDING)
+                cursor = cursor.sort(order_field, DESCENDING)
             else:
-                cursor = cursor.sort(order_field, pymongo.ASCENDING)
+                cursor = cursor.sort(order_field, ASCENDING)
 
         return [Product.from_dict(product) for product in cursor]
 
