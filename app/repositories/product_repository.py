@@ -262,7 +262,7 @@ class ProductRepository:
         """
 
         product: Product
-        results: List = [InsertOneResult]
+        results: List[InsertOneResult] = []
         prod_dict: dict
 
         # add product to all units with quantity, sold_quantity, unit_gain all set to 0
