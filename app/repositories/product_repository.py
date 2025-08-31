@@ -1,14 +1,22 @@
 from typing import List, Optional
 import pymongo
 from pymongo.database import Collection
+from pymongo.results import InsertOneResult
 from app.model.product import Product
+from app.model.unit import Unit
+from app.repositories import unit_repository
+from app.repositories.unit_repository import UnitRepository
 
 
 class ProductRepository:
     product_collection: Collection
+    unit_collection: Collection
+    unit_repository: UnitRepository
 
-    def __init__(self, product_collection: Collection):
+    def __init__(self, product_collection: Collection, unit_collection: Collection, unit_repository: UnitRepository):
         self.product_collection = product_collection
+        self.unit_collection    = unit_collection
+        self.unit_repository    = unit_repository
 
     def get_product_by_id(self, id: str) -> Product | None:
         result = self.product_collection.find_one({"id": id})
@@ -60,3 +68,233 @@ class ProductRepository:
                 cursor = cursor.sort(order_field, pymongo.ASCENDING)
 
         return [Product.from_dict(product) for product in cursor]
+
+
+    """
+    TODO 
+    If unit_id is specified:
+    - get unit by id
+    - insert product to unit
+
+    if unit_id is not specified:
+    - get all units ids
+    - insert product to all units
+    """
+
+
+    def insert_product(
+        self,
+        id: Optional[str],
+        name: str,
+        quantity: int,
+        sold_quantity: int,
+        weight: float,
+        volume: float,
+        category: str,
+        purchase_price: float,
+        selling_price: float,
+        manufacturer: str,
+        unit_gain: float,
+        unit_id: str | None = None,
+    ) -> List[InsertOneResult]:
+        """
+        Inserts a product to the database
+
+        The product defined by the method's arguments is added to the unit identified by `unit_id`,
+        if `unit_id is not None. If `unit_id` is None then the product is added to all units
+
+        Args:
+            id (str | None): The product ID. Can be None if not yet assigned.
+            name (str): The name of the product.
+            quantity (int): The available quantity in the unit.
+            sold_quantity (int): The number of items sold from the unit.
+            weight (float): The weight of one item of the product.
+            volume (float): The volume of one item of the product.
+            category (str): The category of the product (e.g., "Electronics", "Clothing").
+            purchase_price (float): The cost price of one item of the product.
+            selling_price (float): The selling price of one item of the product.
+            manufacturer (str): The product manufacturer.
+            unit_gain (float): The total gain or loss of the product in this unit.
+            unit_id (str | None): The ID of the unit where the product will be inserted.
+            If `unit_id` is None then the product is added to all the units
+
+        Returns:
+            List[pymongo.InsertOneResult]: A list with the result of the database insertion to one or all units
+
+        Raises:
+            ValueError: If the `unit_id` is specified but no unit is found with that ID
+        """
+
+        if unit_id is not None:
+            result = self._insert_product_to_unit(
+                id,
+                name,
+                quantity,
+                sold_quantity,
+                weight,
+                volume,
+                category,
+                purchase_price,
+                selling_price,
+                manufacturer,
+                unit_gain,
+                unit_id,
+            )
+            return [result]
+
+        result = self._insert_product_to_all_units(
+            id,
+            name,
+            weight,
+            volume,
+            category,
+            purchase_price,
+            selling_price,
+            manufacturer,
+        )
+        return result
+
+
+    def _insert_product_to_unit(
+        self,
+        id: Optional[str],
+        name: str,
+        quantity: int,
+        sold_quantity: int,
+        weight: float,
+        volume: float,
+        category: str,
+        purchase_price: float,
+        selling_price: float,
+        manufacturer: str,
+        unit_gain: float,
+        unit_id: str
+    ) -> InsertOneResult:
+        """
+        Insert a product into a specific unit.
+
+        Creates a Product instance and inserts it into the product collection 
+        for the unit identified by `unit_id`.
+
+        Args:
+            id (str | None): The product ID. Can be None if not yet assigned.
+            name (str): The name of the product.
+            quantity (int): The available quantity in the unit.
+            sold_quantity (int): The number of items sold from the unit.
+            weight (float): The weight of one item of the product.
+            volume (float): The volume of one item of the product.
+            category (str): The category of the product (e.g., "Electronics", "Clothing").
+            purchase_price (float): The cost price of one item of the product.
+            selling_price (float): The selling price of one item of the product.
+            manufacturer (str): The product manufacturer.
+            unit_gain (float): The total gain or loss of the product in this unit.
+            unit_id (str): The ID of the unit where the product will be inserted.
+
+        Returns:
+            pymongo.InsertOneResult: The result of the database insertion.
+
+        Raises:
+            ValueError: If no unit with the given `unit_id` exists.
+        """
+        product: Product
+        unit: Optional[Unit]
+        prod_dict: dict
+
+        unit = self.unit_repository.get_unit_by_id(unit_id)
+
+        if unit is None:
+            raise ValueError(f"Unit with id={unit_id} does not exist.")
+
+        product = Product.from_dict(
+            {
+                "id":             id,
+                "name":           name,
+                "quantity":       quantity,
+                "sold_quantity":  sold_quantity,
+                "weight":         weight,
+                "volume":         volume,
+                "category":       category,
+                "purchase_price": purchase_price,
+                "selling_price":  selling_price,
+                "manufacturer":   manufacturer,
+                "unit_gain":      unit_gain,
+            }
+        )
+
+        prod_dict = product.to_dict()
+        prod_dict["unit_id"] = unit_id
+
+        result = self.product_collection.insert_one(prod_dict)
+
+        return result
+
+
+    def _insert_product_to_all_units(
+        self,
+        id: Optional[str],
+        name: str,
+        weight: float,
+        volume: float,
+        category: str,
+        purchase_price: float,
+        selling_price: float,
+        manufacturer: str,
+    ) -> List[InsertOneResult]:
+        """
+        Insert a new product into all units.
+
+        This method creates a Product with default values for quantity, sold_quantity,
+        and unit_gain (all set to 0), then inserts it into the product collection for
+        each unit in the system. A separate document is created for each unit.
+
+        Args:
+            id (str | None): The product ID. Can be None if not yet assigned.
+            name (str): The name of the product.
+            weight (float): The weight of one item of the product.
+            volume (float): The volume of one item of the product.
+            category (str): The category of the product (e.g., "Electronics", "Clothing").
+            purchase_price (float): The cost price of one item of the product.
+            selling_price (float): The selling price of one item of the product.
+            manufacturer (str): The product manufacturer.
+
+        Returns:
+            List[pymongo.InsertOneResult]: A list of insertion results, one for each unit.
+        """
+
+        product: Product
+        results: List = [InsertOneResult]
+        prod_dict: dict
+
+        # add product to all units with quantity, sold_quantity, unit_gain all set to 0
+        product = Product.from_dict(
+            {
+                "id":             id,
+                "name":           name,
+                "quantity":       0,
+                "sold_quantity":  0,
+                "weight":         weight,
+                "volume":         volume,
+                "category":       category,
+                "purchase_price": purchase_price,
+                "selling_price":  selling_price,
+                "manufacturer":   manufacturer,
+                "unit_gain":      0,
+            }
+        )
+
+        prod_dict = product.to_dict()
+
+        # get all units and unit ids
+        unit_ids = self.unit_repository.get_all_units_ids()
+
+        """ TODO maybe keep a list the product for each unit and add them all together """
+
+        # insert a product to each unit by inserting it
+        # multiple times to the product collection
+        # but with different unit_id each time
+        for unit_id in unit_ids:
+            prod_dict["unit_id"] = unit_id
+            result = self.product_collection.insert_one(prod_dict)
+            results.append(result)
+
+        return results
