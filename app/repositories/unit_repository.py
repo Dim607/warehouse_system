@@ -1,11 +1,11 @@
 from typing import List
 from pymongo.database import Collection
+from pymongo.results import InsertManyResult
 from app.model.unit import Unit
 
 
 """
 Avoid Singleton pattern, use Dependency Injection
-This makes testing quicker
 """
 class UnitRepository:
     unit_collection: Collection
@@ -53,7 +53,7 @@ class UnitRepository:
         id: str,
         name: str,
         volume: float
-    ):
+    ) -> dict:
         """
         Insert a unit to the unit Collection
         :param id: string with the id of the unit to insert to the database
@@ -73,7 +73,7 @@ class UnitRepository:
             "inserted_id": str(result.inserted_id)
         }
 
-    def insert_units(self, units: List[Unit]):
+    def insert_units(self, units: List[Unit]) -> InsertManyResult:
         """
         Insert multiple units to the unit Collection
 
@@ -84,9 +84,9 @@ class UnitRepository:
         to_be_inserted = []
         for unit in units:
             try:
-                emp = Unit.from_dict(unit)
-                to_be_inserted.append(emp.to_dict())
-            except Exception as e:  # if one employee has wrong format stop
+                unit = Unit.from_dict(unit)
+                to_be_inserted.append(unit.to_dict())
+            except Exception as e:  # if one unit has wrong format stop
                 raise ValueError(f"Invalid unit format: {unit}") from e
 
         result = self.unit_collection.insert_many(to_be_inserted)
