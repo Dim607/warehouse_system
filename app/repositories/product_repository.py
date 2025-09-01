@@ -111,7 +111,7 @@ class ProductRepository:
             If `unit_id` is None then the product is added to all the units
 
         Returns:
-            List[pymongo.InsertOneResult]: A list with the result of the database insertion to one or all units
+            List[pymongo.results.InsertOneResult]: A list with the result of the database insertion to one or all units
 
         Raises:
             ValueError: If the `unit_id` is specified but no unit is found with that ID
@@ -192,10 +192,13 @@ class ProductRepository:
             unit_id (str): The ID of the unit where the product will be inserted.
 
         Returns:
-            pymongo.InsertOneResult: The result of the database insertion.
+            pymongo.results.InsertOneResult: The result of the database insertion.
 
         Raises:
-            ValueError: If no unit with the given `unit_id` exists.
+            ValueError:
+            - If no unit with the given `unit_id` exists.
+            - If any of the neccesary Product fields are missing when creating a Product instance
+              from a dictionary
         """
         product: Product
         unit: Optional[Unit]
@@ -206,21 +209,24 @@ class ProductRepository:
         if unit is None:
             raise ValueError(f"Unit with id={unit_id} does not exist.")
 
-        product = Product.from_dict(
-            {
-                "id":             id,
-                "name":           name,
-                "quantity":       int(quantity),
-                "sold_quantity":  int(sold_quantity),
-                "weight":         float(weight),
-                "volume":         float(volume),
-                "category":       category,
-                "purchase_price": float(purchase_price),
-                "selling_price":  float(selling_price),
-                "manufacturer":   manufacturer,
-                "unit_gain":      float(unit_gain),
-            }
-        )
+        try:
+            product = Product.from_dict(
+                {
+                    "id":             id,
+                    "name":           name,
+                    "quantity":       int(quantity),
+                    "sold_quantity":  int(sold_quantity),
+                    "weight":         float(weight),
+                    "volume":         float(volume),
+                    "category":       category,
+                    "purchase_price": float(purchase_price),
+                    "selling_price":  float(selling_price),
+                    "manufacturer":   manufacturer,
+                    "unit_gain":      float(unit_gain),
+                }
+            )
+        except Exception as e:
+            raise ValueError(f"Invalid product format") from e
 
         prod_dict = product.to_dict()
         prod_dict["unit_id"] = unit_id
@@ -259,7 +265,11 @@ class ProductRepository:
             manufacturer (str): The product manufacturer.
 
         Returns:
-            List[pymongo.InsertOneResult]: A list of insertion results, one for each unit.
+            List[pymongo.results.InsertOneResult]: A list of insertion results, one for each unit.
+
+        Raises:
+            ValueError: If any of the neccesary Product fields are missing when creating a Product instance
+            from a dictionary
         """
 
         product: Product
@@ -267,21 +277,24 @@ class ProductRepository:
         prod_dict: dict
 
         # add product to all units with quantity, sold_quantity, unit_gain all set to 0
-        product = Product.from_dict(
-            {
-                "id":             id,
-                "name":           name,
-                "quantity":       0,
-                "sold_quantity":  0,
-                "weight":         weight,
-                "volume":         volume,
-                "category":       category,
-                "purchase_price": purchase_price,
-                "selling_price":  selling_price,
-                "manufacturer":   manufacturer,
-                "unit_gain":      0,
-            }
-        )
+        try:
+            product = Product.from_dict(
+                {
+                    "id":             id,
+                    "name":           name,
+                    "quantity":       0,
+                    "sold_quantity":  0,
+                    "weight":         weight,
+                    "volume":         volume,
+                    "category":       category,
+                    "purchase_price": purchase_price,
+                    "selling_price":  selling_price,
+                    "manufacturer":   manufacturer,
+                    "unit_gain":      0,
+                }
+            )
+        except Exception as e:
+            raise ValueError(f"Invalid product format") from e
 
         prod_dict = product.to_dict()
 
@@ -322,8 +335,8 @@ class ProductRepository:
         Raises:
             ValueError: If no unit with the given `unit_id` exists
         """
-        free_space: float    = 0
-        used_space: float    = 0
+        free_space: float
+        used_space: float
         unit: Optional[Unit] = self.unit_repository.get_unit_by_id(unit_id)
 
         # no unit with unit_id was found
