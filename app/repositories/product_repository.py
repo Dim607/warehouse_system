@@ -70,17 +70,10 @@ class ProductRepository:
 
 
     """
-    TODO 
-    If unit_id is specified:
-    - get unit by id
-    - insert product to unit
-
-    if unit_id is not specified:
-    - get all units ids
-    - insert product to all units
+    TODO
+    WJAT IF THE UNIT (OR ONE OF THE UNITS)
+    DOES NOT HAVE ENOUGH SPACE FOR THE PRODUCT
     """
-
-
     def insert_product(
         self,
         id: Optional[str],
@@ -105,8 +98,8 @@ class ProductRepository:
         Args:
             id (str | None): The product ID. Can be None if not yet assigned.
             name (str): The name of the product.
-            quantity (int): The available quantity in the unit.
-            sold_quantity (int): The number of items sold from the unit.
+            quantity (int): The number of items of the product to insert in the unit.
+            sold_quantity (int): The number of items of the product sold from the unit.
             weight (float): The weight of one item of the product.
             volume (float): The volume of one item of the product.
             category (str): The category of the product (e.g., "Electronics", "Clothing").
@@ -124,7 +117,16 @@ class ProductRepository:
             ValueError: If the `unit_id` is specified but no unit is found with that ID
         """
 
+        """
+        TODO
+        - TRY ... except: raise ... from
+        - use type casting for quantity, sold_quantity etc when calling other functions
+        Do this inside _insert_product_to_unit and _insert_product_to_all_units as well
+        """
         if unit_id is not None:
+            if self._does_product_fit_in_unit(unit_id, int(quantity), float(volume)):
+                return []
+
             result = self._insert_product_to_unit(
                 id,
                 name,
@@ -178,8 +180,8 @@ class ProductRepository:
         Args:
             id (str | None): The product ID. Can be None if not yet assigned.
             name (str): The name of the product.
-            quantity (int): The available quantity in the unit.
-            sold_quantity (int): The number of items sold from the unit.
+            quantity (int): The number of items of the product to insert in the unit.
+            sold_quantity (int): The number of items of the product sold from the unit.
             weight (float): The weight of one item of the product.
             volume (float): The volume of one item of the product.
             category (str): The category of the product (e.g., "Electronics", "Clothing").
@@ -208,15 +210,15 @@ class ProductRepository:
             {
                 "id":             id,
                 "name":           name,
-                "quantity":       quantity,
-                "sold_quantity":  sold_quantity,
-                "weight":         weight,
-                "volume":         volume,
+                "quantity":       int(quantity),
+                "sold_quantity":  int(sold_quantity),
+                "weight":         float(weight),
+                "volume":         float(volume),
                 "category":       category,
-                "purchase_price": purchase_price,
-                "selling_price":  selling_price,
+                "purchase_price": float(purchase_price),
+                "selling_price":  float(selling_price),
                 "manufacturer":   manufacturer,
-                "unit_gain":      unit_gain,
+                "unit_gain":      float(unit_gain),
             }
         )
 
@@ -297,3 +299,47 @@ class ProductRepository:
             results.append(result)
 
         return results
+
+
+    def _does_product_fit_in_unit(self, unit_id: str, product_quantity: int, product_volume: float) -> bool:
+        """
+        Checks if a product can fit in the unit that is associated by `unit_id`
+
+        This method gets the total volume of the unit associated by `unit_id`.
+        It then gets information about how much storage each product of the unit takes up
+        and subtracts it from the total volume.
+        If the remainder is enough to store the product with `product_quantity` and `product_volume`
+        the product can be placed inside the unit.
+
+        Args:
+        unit_id (str): The ID of the unit to check if a product fits in it
+        product_quantity (int): The number of items of the product to insert in the unit.
+        product_volume (float): The volume of one item of the product to insert to the unit.
+
+        Returns:
+            bool: True if there is space in the unit for the product, False otherwise
+
+        Raises:
+            ValueError: If no unit with the given `unit_id` exists
+        """
+        free_space: float    = 0
+        used_space: float    = 0
+        unit: Optional[Unit] = self.unit_repository.get_unit_by_id(unit_id)
+
+        # no unit with unit_id was found
+        if unit is None:
+            raise ValueError(f"Unit with id={unit_id} does not exist.")
+
+        # get storage information for all the products in the unit
+        products = self.product_collection.find(
+            {"unit_id": unit_id},
+            projection={"quantity": 1, "volume": 1}
+        )
+
+        used_space = sum(p["quantity"] * p["volume"] for p in products)
+        free_space = float(unit.volume) - used_space
+
+        return free_space >= product_quantity * product_volume
+
+
+
