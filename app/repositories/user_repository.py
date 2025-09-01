@@ -34,8 +34,6 @@ class UserRepository:
             "unit_id":  unit_id,
         }
 
-        print(query)
-
         result = self.user_collection.find_one(query)
 
         if result is None:
