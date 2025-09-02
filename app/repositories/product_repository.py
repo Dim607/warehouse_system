@@ -346,92 +346,56 @@ class ProductRepository:
 
         return free_space >= product_quantity * product_volume
 
-    """
-    TODO
-    In order for someone to buy a product they must know its name, weight, selling price etc
-    These are neede in case the product does not exist in order to insert it to the database.
-    This is stupid
-    """
+
     def buy_product(
         self,
-        product_id: str | None,
+        product_id: str,
         purchased_quantity: int,
         item_purchase_price: float,
-        name: str,
-        weight: float,
-        volume: float,
-        category: str,
-        selling_price: float,
-        manufacturer: str,
-        unit_id: str
-    ) -> bool:
+    ) -> Product:
         """
         Buy a product and update it to the database
 
-        If the product does not already exist inside a unit it is added to the unit with `unit_id`
-
         This method fetches the database for the product identified by `product_id`.
-        It then calculates the unit_gain and the quantity for the product
+        It then updates the unit_gain (balance) and the quantity for the product
         based on the `purchased_quantity` and the `purchase_price`
 
         Args:
-            product_id (str | None): The id of the product to buy.
-            purchased_quantity(int): The quantity of items of the product to be purchased.
-            purchase_price (float): The price for each item of the product to be purchsed.
+            product_id (str): The id of the product to buy.
+            purchased_quantity (int): The quantity of items of the product to be purchased.
+            item_purchase_price (float): The price for each item of the product to be purchsed.
 
         Returns:
-            bool: True if the product is succesfully updated, False otherwise
+            Product: The updated product
 
         Raises:
-            ValueError: If no product exists with the given `product_id`
+            ValueError:
+                - If no product exists with the given `product_id`
+                - If the product could not be updated
         """
-        insert_result: InsertOneResult
-        quantity: int
         loss: float
-        unit_gain: float
         buy_result: Any
-        product: Optional[Product] = None
+        product: Optional[Product] = self.get_product_by_id(product_id)
 
-        if product_id is not None:
-            product = self.get_product_by_id(product_id)
-        else:
-            product = None
+        if product is None:
+            raise ValueError(f"Product with id={product_id} does not exist.")
 
-        # loss MUST BE NEGATIVE
+        # loss MUST BE NEGATIVE because of $inc in the following query
         loss = - (item_purchase_price * purchased_quantity)
 
-        # does the product exist inside the product collection?
-        if product is None: # No :(
-            try:
-                insert_result = self._insert_product_to_unit(
-                    product_id,
-                    name,
-                    purchased_quantity,
-                    0,
-                    weight,
-                    volume,
-                    category,
-                    item_purchase_price,
-                    selling_price,
-                    manufacturer,
-                    loss,
-                    unit_id
-                )
-            except Exception as e:
-                raise ValueError(f"Could not insert product to the database") from e
-
-            return insert_result.acknowledged
-
-        quantity = product.quantity + purchased_quantity
-        unit_gain = product.unit_gain + loss # loss is negative
-
+        # update the product and return the updated document
         buy_result = self.product_collection.find_one_and_update(
             {"id": product_id},
-            {"$set": {
-                "quantity": quantity,
-                "unit_gain": unit_gain
-            }}
+            {"$inc": {
+                "quantity": purchased_quantity,
+                "unit_gain": loss
+            }},
+            return_document=True
         )
 
-        return buy_result is not None
+        if buy_result is None:
+            raise ValueError(f"Failed to update product with id={product_id}")
+
+        return Product.from_dict(buy_result)
+
 
