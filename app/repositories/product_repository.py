@@ -351,19 +351,17 @@ class ProductRepository:
         self,
         product_id: str,
         purchased_quantity: int,
-        item_purchase_price: float,
     ) -> Product:
         """
         Buy a product and update it to the database
 
         This method fetches the database for the product identified by `product_id`.
         It then updates the unit_gain (balance) and the quantity for the product
-        based on the `purchased_quantity` and the `purchase_price`
+        based on the `purchased_quantity`.
 
         Args:
             product_id (str): The id of the product to buy.
             purchased_quantity (int): The quantity of items of the product to be purchased.
-            item_purchase_price (float): The price for each item of the product to be purchsed.
 
         Returns:
             Product: The updated product
@@ -381,7 +379,7 @@ class ProductRepository:
             raise ValueError(f"Product with id={product_id} does not exist.")
 
         # loss MUST BE NEGATIVE because of $inc in the following query
-        loss = - (item_purchase_price * purchased_quantity)
+        loss = - (product.purchase_price * purchased_quantity)
 
         # update the product and return the updated document
         buy_result = self.product_collection.find_one_and_update(
