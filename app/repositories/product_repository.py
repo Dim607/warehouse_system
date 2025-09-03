@@ -397,3 +397,58 @@ class ProductRepository:
         return Product.from_dict(buy_result)
 
 
+
+    def sell_product(
+        self,
+        product_id: str,
+        quantity_to_sell: int,
+    ) -> Product:
+        """
+        Sell a product and update it in the database 
+
+        This method fetches the database for the product identified by `product_id`.
+        It then increases the unit_gain (balance) and decreases the  quantity for the product
+        based on `quantity_to_sell`.
+
+        Args:
+            product_id (str): The id of the product to sell.
+            quantity_to_sell (int): The quantity of items of the product to be sold.
+
+        Returns:
+            Product: The updated product
+
+        Raises:
+            ValueError:
+                - If no product exists with the given `product_id`
+                - If the quantity to sell is larger than the existing quantity in the database
+                - If the product could not be updated
+        """
+        profit: float
+        sell_result: dict[str, Any]
+        product: Optional[Product] = self.get_product_by_id(product_id)
+
+
+        if product is None:
+            raise ValueError(f"Product with id={product_id} does not exist.")
+
+        profit = (product.selling_price - product.purchase_price) * quantity_to_sell
+
+        sell_result = self.product_collection.find_one_and_update(
+            {
+                "id": product_id,
+                # is there enough product to sell
+                "quantity": {"$gte": quantity_to_sell}
+            },
+            {
+                "$inc": {
+                    "quantity": -quantity_to_sell,  # subtract sold quantity
+                    "unit_gain": profit,
+                }
+            },
+            return_document=True,
+        )
+
+        if sell_result is None:
+            raise ValueError(f"Failed to update product with id={product_id}")
+
+        return Product.from_dict(sell_result)
