@@ -356,7 +356,7 @@ class ProductRepository:
         Buy a product and update it to the database
 
         This method fetches the database for the product identified by `product_id`.
-        It then updates the unit_gain (balance) and the quantity for the product
+        It then decreases the unit_gain (balance) and increases the quantity of the product
         based on the `purchased_quantity`.
 
         Args:
