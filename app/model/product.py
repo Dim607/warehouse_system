@@ -179,6 +179,32 @@ class Product:
         return product
 
 
+    def calculate_loss(self, quantity: int) -> float:
+        """
+        Returns the loss of buing `quantity` items of the product
+
+        Args: 
+            quantity (int): The amount of items of the product to buy
+
+        Returns:
+            (float): The loss
+        """
+        return - self.purchase_price * quantity
+
+
+    def calculate_profit(self, quantity):
+        """
+        Calculates the profit from selling `quantity` items of the product
+
+        Args:
+            quantity (int): The amount f items of the product to sell
+
+        Returns:
+            (float): The profit
+        """
+        return (self.selling_price - self.purchase_price) * quantity
+
+
     def sell_product(self, sold_product: int) -> None:
         """
         Sells a product

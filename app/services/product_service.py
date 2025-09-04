@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Optional
 from pymongo.results import InsertManyResult, InsertOneResult
 from app.model.product import Product
 from app.model.unit import Unit
@@ -320,7 +320,7 @@ class ProductService():
             raise ValueError(f"Product with id={product_id} does not fit into unit with id={unit_id}")
 
         # loss MUST BE NEGATIVE because of $inc in the following query
-        loss = - (product.purchase_price * purchased_quantity)
+        loss = product.calculate_loss(purchased_quantity)
 
         # update the product and return the updated document
         try:
@@ -365,7 +365,7 @@ class ProductService():
         if product is None:
             raise ValueError(f"Product with id={product_id} does not exist.")
 
-        profit = (product.selling_price - product.purchase_price) * quantity_to_sell
+        profit = product.calculate_profit(quantity_to_sell)
 
         try:
             updated_product = self.product_repo.sell_product(product_id, quantity_to_sell, profit)
