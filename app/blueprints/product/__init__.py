@@ -10,14 +10,11 @@ def create_product_blueprint(prod_repo: ProductRepository):
     product_bp = Blueprint(PRODUCT_BP, __name__, template_folder="templates")
 
 
-    @product_bp.route("/products", methods=["GET", "POST"])
+    @product_bp.route("/products", methods=["GET"])
     @login_required
     def get_all_products():
         error = None
         products: Optional[List]
-
-        if request.method != "POST":
-            return render_template("product/view_products.html")
 
         products = prod_repo.get_products()
 
