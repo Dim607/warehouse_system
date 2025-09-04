@@ -114,8 +114,7 @@ class ProductRepository:
         Returns:
             pymongo.results.InsertOneResult: The result of the insertion
         """
-        prod_dict = product.to_dict() 
-        return self.product_collection.insert_one(prod_dict)
+        return self.product_collection.insert_one(product.to_dict())
 
 
     def insert_products(self, products: List[Product]) -> InsertManyResult:
