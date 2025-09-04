@@ -13,12 +13,24 @@ def create_auth_blueprint(user_repo: UserRepository,) -> Blueprint:
     def login():
         error = None
 
-        if request.method != "POST":
-            return render_template("auth/login.html")
 
-        username = request.form["username"]
-        password = request.form["password"]
-        unit_id  = request.form["unit_id"]
+        """
+        TODO UNCOMMENT THESE
+        THEY ARE ONLY COMMENTED FOR TESTING
+        """
+
+        # if request.method != "POST":
+        #     return render_template("auth/login.html")
+
+        # username = request.form["username"]
+        # password = request.form["password"]
+        # unit_id  = request.form["unit_id"]
+        username = "js"
+        password = "12"
+        unit_id = "u1"
+
+
+
 
         user = user_repo.get_user(username, password, unit_id)
 
@@ -32,9 +44,11 @@ def create_auth_blueprint(user_repo: UserRepository,) -> Blueprint:
 
         if isinstance(user, Supervisor):
             session["supervisor_id"] = user.id
+            session["unit_id"] = unit_id
             return redirect(url_for(f"{SUPERVISOR_BP}.dashboard"))
 
         session["employee_id"] = user.id
+        session["unit_id"] = unit_id
         return redirect(url_for(f"{EMPLOYEE_BP}.dashboard"))
 
 
