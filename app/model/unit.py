@@ -3,10 +3,14 @@ import uuid
 
 
 class Unit:
+    id: str
+    name: str
+    volume: float
+
     def __init__(self, id: Optional[str], name: str, volume: float):
-        self.id: Optional[str] = id if id is not None else str(uuid.uuid4())
-        self.name: str         = name
-        self.volume: float     = volume
+        self.id: str       = id if id is not None else str(uuid.uuid4())
+        self.name: str     = name
+        self.volume: float = volume
 
     def __str__(self) -> str:
         return f"{self.id}, {self.name}, {self.volume}";
