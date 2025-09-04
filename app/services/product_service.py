@@ -307,9 +307,9 @@ class ProductService():
                 - If there is no space for the product in the unit it is in.
                 - If the product could not be updated
         """
+        unit_id: str
         loss: float
         product: Optional[Product] = self.product_repo.get_product_by_id(product_id)
-        unit_id: str
 
         if product is None:
             raise ValueError(f"Product with id={product_id} does not exist.")
