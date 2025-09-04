@@ -26,6 +26,10 @@ class ProductRepository:
         result = self.product_collection.find()
         return [Product.from_dict(product) for product in result]
 
+    def get_products_from_unit(self, unit_id: str):
+        cursor = self.product_collection.find({"unit_id": unit_id})
+        return [Product.from_dict(product) for product in cursor]
+
 
     def get_quantity_and_volume_by_unit(self, unit_id: str) -> List[dict]:
         cursor = self.product_collection.find(
