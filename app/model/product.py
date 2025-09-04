@@ -16,6 +16,7 @@ class Product:
     selling_price: float
     manufacturer: str
     unit_gain: float
+    unit_id: str
 
     def __init__(
         self,
@@ -30,6 +31,7 @@ class Product:
         selling_price: float,
         manufacturer: str,
         unit_gain: float,
+        unit_id: str
     ):
         self.id: Optional[str]     = id if id is not None else str(uuid.uuid4())
         self.name:str              = name 
@@ -42,26 +44,39 @@ class Product:
         self.selling_price: float  = selling_price
         self.manufacturer: str     = manufacturer
         self.unit_gain: float      = unit_gain
+        self.unit_id: str          = unit_id
 
 
     def __eq__(self, other: Product) -> bool:
         return self.id == other.id
 
     def __str__(self) -> str:
-        return f"{self.id}, {self.name}, \
-                {self.quantity}, {self.sort_sold_quantity}, \
+        return f"{self.id}, \
+                {self.name}, \
+                {self.quantity}, \
+                {self.sort_sold_quantity}, \
                 {self.weight}, \
-                {self.volume}, {self.category}, \
-                {self.purchase_price}, {self.selling_price}, \
-                {self.manufacturer}, {self.unit_gain}"
+                {self.volume}, \
+                {self.category}, \
+                {self.purchase_price}, \
+                {self.selling_price}, \
+                {self.manufacturer}, \
+                {self.unit_gain}, \
+                {self.unit_id}"
 
     def __repr__(self) -> str:
-        return f"Product('{self.id}', '{self.name}', \
-                        '{self.quantity}', '{self.sort_sold_quantity}', \
+        return f"Product('{self.id}', \
+                        '{self.name}', \
+                        '{self.quantity}', \
+                        '{self.sort_sold_quantity}', \
                         '{self.weight}', \
-                        '{self.volume}', '{self.category}', \
-                        '{self.purchase_price}', '{self.selling_price}', \
-                        '{self.manufacturer}', '{self.unit_gain}',)"
+                        '{self.volume}', \
+                        '{self.category}', \
+                        '{self.purchase_price}', \
+                        '{self.selling_price}', \
+                        '{self.manufacturer}', \
+                        '{self.unit_gain}'\
+                        `{self.unit_id}')"
 
     def to_dict(self) -> dict:
         """
@@ -80,6 +95,7 @@ class Product:
             - `selling_price`
             - `manufacturer`
             - `unit_gain`
+            - `unit_id`
         """
         return {
             "id":             self.id,
@@ -93,6 +109,7 @@ class Product:
             "selling_price":  self.selling_price,
             "manufacturer":   self.manufacturer,
             "unit_gain":      self.unit_gain,
+            "unit_id":        self.unit_id,
         }
 
     @classmethod
@@ -116,6 +133,7 @@ class Product:
             - `selling_price`
             - `manufacturer`
             - `unit_gain`
+            - `unit_id`
             The key `id` is optional and may be None.
 
         Returns:
@@ -135,7 +153,8 @@ class Product:
             "purchase_price",
             "selling_price",
             "manufacturer",
-            "unit_gain"
+            "unit_gain",
+            "unit_id",
         ]
 
         for attr in attributes:
@@ -154,6 +173,7 @@ class Product:
             selling_price  = data.get("selling_price"),
             manufacturer   = data.get("manufacturer"),
             unit_gain      = data.get("unit_gain"),
+            unit_id        = data.get("unit_id"),
         )
 
         return product
