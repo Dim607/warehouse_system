@@ -74,6 +74,7 @@ class Employee:
             "role":      self.role
         }
 
+
     def to_percistance_dict(self) -> dict[str, Any]:
         """
         Convert the Employee object into a dictionary suitable for persistence.
@@ -87,7 +88,6 @@ class Employee:
         emp_dict = self.to_dict()
         emp_dict.pop("unit_name", None)
         return emp_dict
-
 
 
     @classmethod
