@@ -1,5 +1,5 @@
 from  __future__ import annotations # for pyright typechecking
-from typing import Optional
+from typing import Any, Optional
 import uuid
 
 
@@ -56,7 +56,13 @@ class Employee:
         return f"Employee({attrs})"
 
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
+        """
+        Convert the Employee object into a full dictionary representation.
+
+        Returns:
+            dict[str, Any]: A dictionary containing all attributes of the employee.
+        """
         return {
             "id":        self.id,
             "name":      self.name,
@@ -67,6 +73,21 @@ class Employee:
             "unit_name": self.unit_name,
             "role":      self.role
         }
+
+    def to_percistance_dict(self) -> dict[str, Any]:
+        """
+        Convert the Employee object into a dictionary suitable for persistence.
+
+        This excludes fields that should not be stored in the database, such as 
+        `unit_name`, which can be derived later by querying the unit collection.
+
+        Returns:
+            dict[str, Any]: A dictionary containing only the fields to persist in the database.
+        """
+        emp_dict = self.to_dict()
+        emp_dict.pop("unit_name", None)
+        return emp_dict
+
 
 
     @classmethod
