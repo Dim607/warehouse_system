@@ -10,6 +10,9 @@ class Employee:
     username: str
     password: str
     unit_id: str
+    # unit_name is not saved in the database for each employee
+    # because it can be found using unit_id
+    # keep it here as a help field
     unit_name: str
     role: str = "employee"
 
