@@ -13,11 +13,16 @@ class Unit:
         self.volume: float = volume
 
     def __str__(self) -> str:
-        return f"{self.id}, {self.name}, {self.volume}";
+        return ", ".join(map(str, [
+            self.id,
+            self.name,
+            self.volume
+        ]))
 
 
     def __repr__(self) -> str:
-        return f"Unit('{self.id}', '{self.name}', '{self.volume}')";
+        attrs = ", ".join(f"{k}={v!r}" for k, v in vars(self).items())
+        return f"Unit({attrs})"
 
 
     def to_dict(self) -> dict:

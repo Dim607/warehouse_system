@@ -37,11 +37,20 @@ class Employee:
 
 
     def __str__(self) -> str:
-        return f"{self.id}, {self.name}, {self.surname}, {self.username}, {self.password}, {self.unit_id}, {self.unit_name}"
+        return ", ".join(map(str, [
+            self.id,
+            self.name,
+            self.surname,
+            self.username,
+            self.password,
+            self.unit_id,
+            self.unit_name,
+        ]))
 
 
     def __repr__(self) -> str:
-        return f"Employee('{self.id}', '{self.name}', '{self.surname}', '{self.username}', '{self.password}', '{self.unit_id}', '{self.unit_name}')"
+        attrs = ", ".join(f"{k}={v!r}" for k, v in vars(self).items())
+        return f"Employee({attrs})"
 
 
     def to_dict(self) -> dict:

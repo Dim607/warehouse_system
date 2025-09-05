@@ -51,32 +51,26 @@ class Product:
         return self.id == other.id
 
     def __str__(self) -> str:
-        return f"{self.id}, \
-                {self.name}, \
-                {self.quantity}, \
-                {self.sort_sold_quantity}, \
-                {self.weight}, \
-                {self.volume}, \
-                {self.category}, \
-                {self.purchase_price}, \
-                {self.selling_price}, \
-                {self.manufacturer}, \
-                {self.unit_gain}, \
-                {self.unit_id}"
+        return ", ".join(map(str, [
+            self.id,
+            self.name,
+            self.quantity,
+            self.sold_quantity,
+            self.weight,
+            self.volume,
+            self.category,
+            self.purchase_price,
+            self.selling_price,
+            self.manufacturer,
+            self.unit_gain,
+            self.unit_id,
+        ]))
+
 
     def __repr__(self) -> str:
-        return f"Product('{self.id}', \
-                        '{self.name}', \
-                        '{self.quantity}', \
-                        '{self.sort_sold_quantity}', \
-                        '{self.weight}', \
-                        '{self.volume}', \
-                        '{self.category}', \
-                        '{self.purchase_price}', \
-                        '{self.selling_price}', \
-                        '{self.manufacturer}', \
-                        '{self.unit_gain}'\
-                        `{self.unit_id}')"
+        attrs = ", ".join(f"{k}={v!r}" for k, v in vars(self).items())
+        return f"Product({attrs})"
+
 
     def to_dict(self) -> dict:
         """
