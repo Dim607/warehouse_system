@@ -22,11 +22,16 @@ class Admin:
 
 
     def __str__(self) -> str:
-        return f"{self.id}, {self.username}, {self.password}"
+        return ", ".join(map(str, [
+            self.id,
+            self.username,
+            self.password
+        ]))
 
 
     def __repr__(self) -> str:
-        return f"Admin('{self.id}', '{self.username}', '{self.password}')"
+        attrs = ", ".join(f"{k}={v!r}" for k, v in vars(self).items())
+        return f"Admin({attrs})"
 
 
     def to_dict(self) -> dict:
@@ -38,8 +43,8 @@ class Admin:
 
     @classmethod
     def from_dict(cls, data):
-        attributes = ["id", "username", "password"]
-
+        # id can be None so dont include it in the attr list
+        attributes = ["username", "password"]
 
         for attr in attributes:
             if data.get(attr) is None:
@@ -50,61 +55,3 @@ class Admin:
             username = data.get("username"),
             password = data.get("password")
         )
-
-    
-    def add_product(
-        self,
-        product_id: Optional[str],
-        product_name: str,
-        product_quantity: int,
-        product_sold_quantity: int,
-        product_weight: float,
-        product_volume: float,
-        product_category: str,
-        product_purchase_price: float,
-        product_selling_price: float,
-        product_manufacturer: str,
-        product_unit_gain: float,
-    ):
-        product = Product(
-            id = product_id,
-            name = product_name,
-            quantity = product_quantity,
-            sold_quantity = product_sold_quantity,
-            weight = product_weight,
-            volume = product_volume,
-            category = product_category,
-            purchase_price = product_purchase_price,
-            selling_price = product_selling_price,
-            manufacturer = product_manufacturer,
-            unit_gain = product_unit_gain,
-        )
-        return product
-
-
-    def create_unit(self):
-        pass
-
-
-    # TODO delete
-    # def create_supervisor(self, name: str, surname: str, username: str, password: str, unit_id: str, unit_name:str ) -> Supervisor:
-    #     supervisor = Supervisor(
-    #         id        = None,
-    #         name      = name,
-    #         surname   = surname,
-    #         username  = username,
-    #         password  = password,
-    #         unit_id   = unit_id,
-    #         unit_name = unit_name,
-    #     )
-    #     return supervisor
-
-
-
-
-
-
-
-
-
-
