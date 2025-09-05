@@ -52,7 +52,7 @@ class EmployeeRepository:
         unit_id: str,
         unit_name: str
     ):
-        # create an employee obnect to validate fields
+        # create an employee object to validate fields
         employee = Employee.from_dict({
             "name":      name,
             "surname":   surname,
@@ -60,7 +60,6 @@ class EmployeeRepository:
             "password":  password,
             "unit_id":   unit_id,
             "unit_name": unit_name,
-            "role":      "employee"
         })
 
         # turn the previously created employee object into a dict and insert it to the user collection
