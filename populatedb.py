@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 from pymongo.database import Collection
-from app.model import supervisor
+from app.model.employee import Employee
+from app.model.product import Product
 from app.repositories.employee_repository import EmployeeRepository
 from app.repositories.product_repository import ProductRepository
 from app.repositories.supervisor_repository import SupervisorRepository
@@ -17,7 +18,7 @@ def add_employees(emp_repo: EmployeeRepository, user_collection: Collection):
         "username": ["js", "mj", "jh", "pw", 'am', "pp"],
         "password": ["12","12","12","12","12", "12"],
         "unit_id": ["u1", "u1", "u2", "u2", "u3", "u3"],
-        "unit_name": ["unit1", "unit1", "unit2", "unit2", "unit3", "unit3"],
+        # "unit_name": ["unit1", "unit1", "unit2", "unit2", "unit3", "unit3"],
     }
     employees_to_add = len(values["name"])
 
@@ -26,7 +27,7 @@ def add_employees(emp_repo: EmployeeRepository, user_collection: Collection):
         for field in values.keys():
             employee[field] = values[field][i]
         # print(employee)
-        employees_list.append(employee)
+        employees_list.append(Employee.from_persistence_dict(employee))
 
     result = emp_repo.insert_employees(employees_list)
 
@@ -79,22 +80,22 @@ def add_units(unit_repo: UnitRepository):
     print(f"Inserted {len(result.inserted_ids)} units")
 
 
-def add_products(prod_repo: ProductRepository, unit_repo: UnitRepository):
+def add_products(prod_repo: ProductRepository):
     prod_list = []
 
     values = {
-        "id": ["p1", "p2", "p3"],
-        "name": ["pr1", "pr2", "pr3"],
-        "quantity": [4, 5, 6],
-        "sold_quantity": [1, 2, 3],
-        "weight": [12, 5, 3],
-        "volume": [3, 2, 1],
-        "category": ["Electronics", "Clothing", "Book"],
-        "purchase_price": [100, 20, 10],
-        "selling_price": [150, 50, 20],
-        "manufacturer": ["Acme", "Acme", "Acme"],
-        "unit_gain": [],
-        "unit_id": ["u1", "u2", "u3"],
+        "id": ["p1", "p2", "p3", "p4", "p5"],
+        "name": ["pr1", "pr2", "pr3", "pr4", "pr5"],
+        "quantity": [4, 5, 6, 7, 8],
+        "sold_quantity": [1, 2, 3, 4, 5],
+        "weight": [12, 5, 3, 12, 12],
+        "volume": [3, 2, 1, 2, 3],
+        "category": ["Electronics", "Clothing", "Book", "Electronics", "Electronics"],
+        "purchase_price": [100, 20, 10, 30, 40],
+        "selling_price": [150, 50, 20, 40, 50],
+        "manufacturer": ["Acme", "Acme", "Acme", "Acme", "Acme"],
+        "unit_gain": [100, 100, 100, 100, 100],
+        "unit_id": ["u1", "u2", "u3", "u1", "u1"],
     }
 
     products_to_add = len(values["name"])
@@ -105,9 +106,10 @@ def add_products(prod_repo: ProductRepository, unit_repo: UnitRepository):
             unit[field] = values[field][i]
         prod_list.append(unit)
 
-    result = unit_repo.insert_units(prod_list)
 
-    print(f"Inserted {len(result.inserted_ids)} units")
+    result = prod_repo.insert_products([Product.from_dict(p) for p in prod_list])
+
+    print(f"Inserted {len(result.inserted_ids)} products")
 
 
 def main():
@@ -122,20 +124,18 @@ def main():
 
     user_collection.drop()
     unit_collection.drop()
+    product_collection.drop()
 
-    # Create indexes to avoid duplicates
-    user_collection.create_index("id", unique=True)
-    user_collection.create_index({"username": 1, "unit_id": 1}, unique=True)
-    unit_collection.create_index({"id": 1})
-    # TODO add index for product collection
 
     # repositories
     emp_repo = EmployeeRepository(user_collection)
     sup_repo = SupervisorRepository(user_collection)
     unit_repo = UnitRepository(unit_collection)
+    prod_repo = ProductRepository(product_collection)
 
     add_employees(emp_repo, user_collection)
     add_supervisors(sup_repo)
     add_units(unit_repo)
+    add_products(prod_repo)
 
 main()
