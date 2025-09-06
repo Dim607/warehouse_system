@@ -96,7 +96,7 @@ class EmployeeRepository:
         """
         Inserts a employees to the database
 
-        Removes the field `unit_name` from each employee` inemployees`,
+        Removes the field `unit_name` from each employee in `employees`,
         only the `unit_id` is needed
 
         Args:
