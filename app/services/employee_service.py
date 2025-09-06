@@ -1,0 +1,142 @@
+from typing import Optional
+from pymongo.results import InsertOneResult
+from app.model.employee import Employee
+from app.model.unit import Unit
+from app.repositories.employee_repository import EmployeeRepository
+from app.repositories.unit_repository import UnitRepository
+from app.repositories.user_repository import UserRepository
+
+
+class EmployeeService():
+    user_repository: UserRepository
+    employee_repository: EmployeeRepository
+    unit_repository: UnitRepository
+
+
+    def __init__(self, user_repository: UserRepository, employee_repository: EmployeeRepository, unit_repo: UnitRepository):
+        self.user_repository     = user_repository
+        self.employee_repository = employee_repository
+        self.unit_repo           = unit_repo
+
+
+    def insert_employee(
+        self,
+        name: str,
+        surname: str,
+        username: str,
+        password: str,
+        unit_id: str,
+    ) -> InsertOneResult:
+        """
+        Insert an employee to the database.
+
+        Args:
+            name (str): The name of the employee.
+            surname (str): The surname of the employee.
+            username (str): The username of the employee.
+            password (str): The password of the employee.
+            unit_id (str): The unit the employee is working on.
+
+        Returns:
+            InsertOneResult: The result of the insertion.
+
+        Raises:
+            ValueError:
+            - If the employee record is missing required attributes
+            (see EmployeeRepository.insert_employee()).
+        """
+        employee = Employee(
+            id        = None,
+            name      = name,
+            surname   = surname,
+            username  = username,
+            password  = password,
+            unit_id   = unit_id,
+            unit_name = None
+        )
+        return self.employee_repository.insert_employee(employee)
+
+
+    # maybe do not implement
+    def insert_employees(self):
+        pass
+
+
+    def get_employee_by_id(self, id: str) -> Employee:
+        """
+        Get an Employee instance from the DB by ID.
+
+        This method:
+        1) Retrieves the employee record from the repository.
+        2) Fetches the unit associated with the employee's `unit_id`.
+        3) Enriches the employee object by setting its `unit_name`.
+
+        Args:
+            id (str): The ID of the employee to retrieve.
+
+        Returns:
+            employee (Employee): An Employee object with the information
+            of the employee identified by `id`.
+
+        Raises:
+            ValueError:
+            - If the employee does not exist.
+            - If the unit does not exist for the employee's `unit_id`.
+            - If the employee record is missing required attributes
+            (see EmployeeRepository.get_employee_by_id()).
+        """
+        employee: Optional[Employee]
+        unit: Optional[Unit]
+        unit_id: str
+
+        # retrieve Employee object
+        # unit_name is not saved in DB, it is None
+        employee = self.employee_repository.get_employee_by_id(id)
+
+        if employee is None:
+            raise ValueError(f"Employee with id={id} does not exist.")
+
+        unit_id = employee.unit_id
+        unit    = self.unit_repository.get_unit_by_id(unit_id)
+
+        if unit is None:
+            raise ValueError(f"Unit with id={unit_id} does not exist.")
+
+        employee.unit_name = unit.name
+
+        return employee
+
+
+    def get_employee(self, username: str, password: str, unit_id: str) -> Employee:
+        """
+        Get an Employee instance from the DB by their credentials.
+
+        This method:
+        1) Retrieves the employee and the employee's unit records from the repository.
+        3) Enriches the employee object by setting its `unit_name`.
+
+        Args:
+            id (str): The ID of the employee to retrieve.
+
+        Returns:
+            employee (Employee): An Employee object with the information
+            of the employee identified by `id`.
+
+        Raises:
+            ValueError:
+            - If the employee does not exist.
+            - If the unit does not exist.
+            - If the employee record is missing required attributes
+            (see EmployeeRepository.get_employee_by_id()).
+        """
+        employee = self.employee_repository.get_employee(username, password, unit_id)
+        unit     = self.unit_repository.get_unit_by_id(unit_id)
+
+        if employee is None:
+            raise ValueError(f"No employee with the given credentials was found.")
+        if unit is None:
+            raise ValueError(f"Unit with id={unit_id} does not exist.")
+
+        employee.unit_name = unit.name
+
+        return employee
