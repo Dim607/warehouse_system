@@ -3,10 +3,16 @@ from app.blueprints.names import EMPLOYEE_BP
 from app.repositories.employee_repository import EmployeeRepository
 from app.repositories.product_repository import ProductRepository
 from app.repositories.user_repository import UserRepository
+from app.services.employee_service import EmployeeService
 from app.utils.auth_utils import login_required
 
 
-def create_employee_blueprint(user_repo: UserRepository, emp_repo: EmployeeRepository, prod_repo: ProductRepository) -> Blueprint:
+def create_employee_blueprint(
+    user_repo: UserRepository,
+    emp_repo: EmployeeRepository,
+    prod_repo: ProductRepository,
+    emp_service: EmployeeService,
+) -> Blueprint:
     employee_bp = Blueprint(EMPLOYEE_BP, __name__, url_prefix="/employee", template_folder="templates")
 
 
@@ -19,7 +25,7 @@ def create_employee_blueprint(user_repo: UserRepository, emp_repo: EmployeeRepos
     @employee_bp.route("/profile", methods=["GET"])
     @login_required
     def show_profile():
-        employee = emp_repo.get_employee_by_id(session["employee_id"])
+        employee = emp_service.get_employee_by_id(session["employee_id"])
 
         if employee is None:
             error = "Could not find employee"

@@ -1,11 +1,12 @@
-from flask import Blueprint, url_for, request, session, redirect, render_template
+from flask import Blueprint, jsonify, url_for, request, session, redirect, render_template
+from app.model import employee
 from app.model.admin import Admin
 from app.model.supervisor import Supervisor
 from app.blueprints.names import ADMIN_BP, EMPLOYEE_BP, AUTH_BP, SUPERVISOR_BP
-from app.repositories.user_repository import UserRepository
+from app.services.user_service import UserService
 
 
-def create_auth_blueprint(user_repo: UserRepository,) -> Blueprint:
+def create_auth_blueprint(user_service: UserService) -> Blueprint:
     auth_bp = Blueprint(AUTH_BP, __name__, template_folder="templates")
 
 
@@ -21,7 +22,7 @@ def create_auth_blueprint(user_repo: UserRepository,) -> Blueprint:
 
         # if request.method != "POST":
         #     return render_template("auth/login.html")
-
+        #
         # username = request.form["username"]
         # password = request.form["password"]
         # unit_id  = request.form["unit_id"]
@@ -30,9 +31,8 @@ def create_auth_blueprint(user_repo: UserRepository,) -> Blueprint:
         unit_id = "u1"
 
 
+        user = user_service.get_user(username, password, unit_id)
 
-
-        user = user_repo.get_user(username, password, unit_id)
 
         if user is None:
             error = "Invalid credentials"
@@ -47,9 +47,14 @@ def create_auth_blueprint(user_repo: UserRepository,) -> Blueprint:
             session["unit_id"] = unit_id
             return redirect(url_for(f"{SUPERVISOR_BP}.dashboard"))
 
-        session["employee_id"] = user.id
-        session["unit_id"] = unit_id
-        return redirect(url_for(f"{EMPLOYEE_BP}.dashboard"))
+        if isinstance(user, employee.Employee):
+            session["employee_id"] = user.id
+            session["unit_id"] = unit_id
+            return redirect(url_for(f"{EMPLOYEE_BP}.dashboard"))
+
+        """ TODO DO SOMETHING HERE"""
+        return jsonify({"message": "Problem"}, 400)
+
 
 
     @auth_bp.route("/logout", methods=["GET"])

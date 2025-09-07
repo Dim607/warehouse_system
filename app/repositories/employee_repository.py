@@ -6,7 +6,6 @@ from app.model.employee import Employee
 
 """
 Avoid Singleton pattern, use Dependency Injection
-This makes testing quicker
 """
 class EmployeeRepository:
     user_collection: Collection

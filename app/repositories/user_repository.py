@@ -2,32 +2,64 @@ from pymongo.database import Collection
 from app.model.employee import Employee
 from app.model.supervisor import Supervisor
 from app.model.admin import Admin
+from app.model.user import User
 
 
 """
 Avoid Singleton pattern, use Dependency Injection
-This makes testing quicker
 """
 class UserRepository:
     user_collection: Collection
+
 
     def __init__(self, user_collection: Collection) -> None:
         self.user_collection = user_collection
 
 
-    def get_user_by_id(self, id: str) -> Employee | None:
+    def get_user_by_id(self, id: str) -> User | None:
+        """
+        Get a User instance from the DB by ID.
+
+        Args:
+            id (str): The ID of the user to retrieve.
+
+        Returns:
+            User | None:
+            - A User object if found. Note that `unit_name` is not stored in the database.
+            - None if no user with the given ID exists.
+
+        Raises:
+            ValueError: If the Database record is missing required attributes
+            (see User.from_persistence_dict() for details on the required attributes).
+        """
         result = self.user_collection.find_one({"id": id})
 
         if result is None:
             return None
 
-        return Employee.from_dict(result)
+        return User.from_persistence_dict(result)
 
 
-    # Returns the employee whose username and password match the function parameters
-    # If there is no employee it returns None
-    # If an Employee object cannot be created from the data in the db an exception is raised
-    def get_user(self, username: str, password: str, unit_id: str):
+    def get_user(self, username: str, password: str, unit_id: str) -> User | None:
+        """
+        Retrieve a User instance from the DB using their credentials.
+
+        Note that `unit_name` is not stored in the DB and it will be set to None.
+
+        Args:
+            username (str): The `username` of the employee.
+            password (str): The `password` of the employee.
+            unit_id (str): The `id` of the unit the employee is assigned to.
+
+        Returns:
+            User | None:
+            - A User object if found. Note that `unit_name` is not stored in the database.
+            - None if no employee with the given ID exists.
+
+        Raises:
+            ValueError: If the Database record is missing required attributes
+            (see User.from_persistence_dict() for details on the required attributes).
+        """
         query = {
             "username": username,
             "password": password,
@@ -39,23 +71,24 @@ class UserRepository:
         if result is None:
             return None
 
-        match result["role"]:
-            case "admin":
-                return Admin.from_dict(result)
-            case "supervisor":
-                return Supervisor.from_dict(result)
-            case "employee":
-                return Employee.from_dict(result)
+        return User.from_persistence_dict(result)
 
 
-    # change the password of the user with the corresponding id
     def change_password(self, id: str, password: str) -> bool:
+        """
+        Changes the password of the user identified by `id`.
+
+        Args:
+            id (str): The id of the user whose password is going to change.
+            password (str): The new password.
+
+        Returns:
+            bool: True if the password is changed false otherwise
+        """
         result = self.user_collection.find_one_and_update(
             {"id": id},
-            {"$set": {"password": password}}
+            {"$set": {"password": password}},
+            upsert = False
         )
 
-        if result is None:
-            return False
-
-        return True
+        return result is not None

@@ -1,11 +1,11 @@
 from  __future__ import annotations # for pyright typechecking
-from typing import Optional
-from app.model.product import Product
-from app.model.unit import Unit
-import uuid
+from typing import Any, Dict, Optional, Type
+from app.model.user import User
 
 
-class Admin:
+class Admin(User):
+    role: str = "admin"
+
 
     def __init__(
         self,
@@ -13,9 +13,16 @@ class Admin:
         username: str,
         password: str,
     ):
-        self.id: Optional[str] = id if id is not None else str(uuid.uuid4())
-        self.username: str     = username
-        self.password: str     = password
+        super().__init__(
+            id        = id,
+            name      = "",
+            surname   = "",
+            username  = username,
+            password  = password,
+            unit_id   = "",
+            unit_name = "",
+        )
+
 
     def __eq__(self, other: Admin) -> bool:
         return self.id == other.id
@@ -34,24 +41,10 @@ class Admin:
         return f"Admin({attrs})"
 
 
-    def to_dict(self) -> dict:
-        return {
-            "id":       self.id,
-            "username": self.username,
-            "password": self.password
-        }
-
     @classmethod
-    def from_dict(cls, data):
-        # id can be None so dont include it in the attr list
-        attributes = ["username", "password"]
-
-        for attr in attributes:
-            if data.get(attr) is None:
-                raise Exception(f"Attribute {attr} cannot be None")
-
-        return cls (
-            id       = data.get("id"),
-            username = data.get("username"),
-            password = data.get("password")
+    def from_user(cls, user: User):
+        return cls(
+            id       = user.id,
+            username = user.username,
+            password = user.password
         )

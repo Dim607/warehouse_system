@@ -16,7 +16,7 @@ class EmployeeService():
     def __init__(self, user_repository: UserRepository, employee_repository: EmployeeRepository, unit_repo: UnitRepository):
         self.user_repository     = user_repository
         self.employee_repository = employee_repository
-        self.unit_repo           = unit_repo
+        self.unit_repository     = unit_repo
 
 
     def insert_employee(
@@ -116,7 +116,9 @@ class EmployeeService():
         3) Enriches the employee object by setting its `unit_name`.
 
         Args:
-            id (str): The ID of the employee to retrieve.
+            username (str): The `username` of the employee.
+            password (str): The `password` of the employee.
+            unit_id (str): The `id` of the unit the employee is assigned to.
 
         Returns:
             employee (Employee): An Employee object with the information
