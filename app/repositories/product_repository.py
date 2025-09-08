@@ -52,7 +52,10 @@ class ProductRepository:
             Product: The updated product
 
         Raises:
-            ValueError: If the product cannot be updated
+            ValueError:
+                - If no  product was found with `product_id`
+                - If the product is missing required order_fields
+                (see Product.from_dict() for more details
         """
         result = self.product_collection.find_one_and_update(
             {"id": product_id},
@@ -62,9 +65,6 @@ class ProductRepository:
             }},
             return_document=True
         )
-
-        if result is None:
-            raise ValueError(f"Failed to update product with id={product_id}")
 
         return Product.from_dict(result)
 
@@ -85,7 +85,10 @@ class ProductRepository:
             Product: The updated product
 
         Raises:
-            ValueError: If the product cannot be updated
+            ValueError: 
+                - If no  product was found with `product_id`
+                - If the product is missing required order_fields
+                (see Product.from_dict() for more details
         """
         sell_result: dict = self.product_collection.find_one_and_update(
             {
@@ -101,9 +104,6 @@ class ProductRepository:
             },
             return_document=True,
         )
-
-        if sell_result is None:
-            raise ValueError(f"Failed to update product with id={product_id}")
 
         return Product.from_dict(sell_result)
 
@@ -134,6 +134,7 @@ class ProductRepository:
         return self.product_collection.insert_many([p.to_dict() for p in products])
 
 
+    """ FIXME do not raise value error """
     def search_products(
         self,
         order_field: Optional[str],
