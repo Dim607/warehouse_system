@@ -1,6 +1,6 @@
 from typing import List
 from pymongo.database import Collection
-from pymongo.results import InsertManyResult
+from pymongo.results import InsertManyResult, InsertOneResult
 from app.model.unit import Unit
 
 
@@ -26,7 +26,8 @@ class UnitRepository:
         """
         Get the ids of all the stored units
 
-        Returns the ids of all the stored units as a list of strings
+        Returns:
+            List[str]: The ids of all the stored units.
         """
         cursor = self.unit_collection.find({}, projection={"id": 1, "_id": 0})
         # instead of returning a list like: [{id: 1}, {id: 2}...], return [1, 2, ...]
@@ -35,9 +36,19 @@ class UnitRepository:
 
     def get_unit_by_id(self, id: str) -> Unit | None:
         """
-        Get the unit with the specified id
+        Get a User instance from the DB by ID.
 
-        :param id: A string specifying the id of the unit to retrieve from the database
+        Args:
+            id (str): The ID of the unit to retrieve.
+
+        Returns:
+            Unit | None:
+            - A Unit object if found.
+            - None if no unit with the given ID exists.
+
+        Raises:
+            ValueError: If the Database record is missing required attributes
+            (see Unit.from_persistence_dict() for details on the required attributes).
         """
 
         result = self.unit_collection.find_one({"id": id})
@@ -48,47 +59,27 @@ class UnitRepository:
         return Unit.from_dict(result)
 
 
-    def insert_unit(
-        self,
-        id: str,
-        name: str,
-        volume: float
-    ) -> dict:
+    def insert_unit(self, unit: Unit) -> InsertOneResult:
         """
-        Insert a unit to the unit Collection
-        :param id: string with the id of the unit to insert to the database
-        :param name: string with the name of the unit
-        :param volume: float with the total volume of the unit
+        Inserts a unit to the database
+
+        Args:
+            unit (Unit): The unit to insert.
+
+        Returns:
+            pymongo.results.InsertOneResult: The result of the insertion.
         """
-        unit = Unit.from_dict({
-            "id":     id,
-            "name":   name,
-            "volume": volume
-        })
+        return self.unit_collection.insert_one(unit.to_dict())
 
-        result = self.unit_collection.insert_one(unit.to_dict())
-
-        return {
-            "acknowledged": result.acknowledged,
-            "inserted_id": str(result.inserted_id)
-        }
 
     def insert_units(self, units: List[Unit]) -> InsertManyResult:
         """
-        Insert multiple units to the unit Collection
+        Inserts a units to the database
 
-        If any of the units are not valid `Unit` objects a ValueError exception is thrown
+        Args:
+            units (List[Unit]): A list with the units to insert
 
-        :param units: A list containing all the units to be inserted
+        Returns:
+            pymongo.results.InsertManyResult: The result of the insertion
         """
-        to_be_inserted = []
-        for unit in units:
-            try:
-                unit = Unit.from_dict(unit)
-                to_be_inserted.append(unit.to_dict())
-            except Exception as e:  # if one unit has wrong format stop
-                raise ValueError(f"Invalid unit format: {unit}") from e
-
-        result = self.unit_collection.insert_many(to_be_inserted)
-
-        return result
+        return self.unit_collection.insert_many([u.to_dict() for u in units])
