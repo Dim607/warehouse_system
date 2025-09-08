@@ -1,4 +1,5 @@
 from typing import Optional
+from app.exceptions.exceptions import UnitNotFoundByIdError, UserNotFoundByCredentialsError, UserNotFoundByIdError
 from app.model.employee import Employee
 from app.model.supervisor import Supervisor
 from app.model.admin import Admin
@@ -6,7 +7,6 @@ from app.model.unit import Unit
 from app.model.user import User
 from app.repositories.unit_repository import UnitRepository
 from app.repositories.user_repository import UserRepository
-from app.types import UserSubclass
 
 
 class UserService:
@@ -35,21 +35,20 @@ class UserService:
             with the information of the user identified by `id`.
 
         Raises:
-            ValueError:
-            - If the employee does not exist.
-            - If the unit does not exist for the employee's `unit_id`.
-            - If the employee record is missing required attributes
-            (see EmployeeRepository.get_employee_by_id()).
+            UserNotFoundByIdError: If the employee does not exist.
+            UnitNotFoundByIdError: If the unit does not exist for the employee's `unit_id`.
+            ValueError: If the employee record is missing required attributes
+                (see EmployeeRepository.get_employee_by_id()).
         """
         user: Optional[User] = self.user_repository.get_user_by_id(id)
 
         if user is None:
-            raise ValueError(f"User with id={id} does not exist.")
+            raise UserNotFoundByIdError(id)
 
         unit: Optional[Unit] = self.unit_repository.get_unit_by_id(user.unit_id)
 
         if unit is None:
-            raise ValueError(f"Unit with id={user.unit_id} does not exist.")
+            raise UnitNotFoundByIdError(user.unit_id)
 
         user.unit_name = unit.name
 
@@ -75,21 +74,21 @@ class UserService:
             of the employee identified by `id`.
 
         Raises:
+            UserNotFoundByCredentialsError: If the user does not exist.
+            UnitNotFoundByIdError: If the unit does not exist.
             ValueError:
-            - If the user does not exist.
-            - If the unit does not exist.
-            - If the employee record is missing required attributes
-            (see UserRepository.get_user_by_id()).
-            - If the user has a role field other than: "admin", "supervisor", "employee".
+                - If the employee record is missing required attributes
+                (see UserRepository.get_user()).
+                - If the user has a role field other than: "admin", "supervisor", "employee".
         """
 
         user = self.user_repository.get_user(username, password, unit_id)
         unit = self.unit_repository.get_unit_by_id(unit_id)
 
         if user is None:
-            raise ValueError(f"No user was found with the given credentials.")
+            raise UserNotFoundByCredentialsError(username, unit_id)
         if unit is None:
-            raise ValueError(f"Unit with id={unit_id} does not exist.")
+            raise UnitNotFoundByIdError(unit_id)
 
         user.unit_name = unit.name
 

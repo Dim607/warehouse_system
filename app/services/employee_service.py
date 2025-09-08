@@ -1,5 +1,6 @@
 from typing import Optional
 from pymongo.results import InsertOneResult
+from app.exceptions.exceptions import UnitNotFoundByIdError, UserNotFoundByCredentialsError, UserNotFoundByIdError
 from app.model.employee import Employee
 from app.model.unit import Unit
 from app.repositories.employee_repository import EmployeeRepository
@@ -79,11 +80,10 @@ class EmployeeService():
             of the employee identified by `id`.
 
         Raises:
-            ValueError:
-            - If the employee does not exist.
-            - If the unit does not exist for the employee's `unit_id`.
-            - If the employee record is missing required attributes
-            (see EmployeeRepository.get_employee_by_id()).
+            UserNotFoundByIdError: If the employee does not exist.
+            UnitNotFoundByIdError: If the unit does not exist for the employee's `unit_id`.
+            ValueError: If the employee record is missing required attributes
+                (see EmployeeRepository.get_employee_by_id()).
         """
         employee: Optional[Employee]
         unit: Optional[Unit]
@@ -94,13 +94,13 @@ class EmployeeService():
         employee = self.employee_repository.get_employee_by_id(id)
 
         if employee is None:
-            raise ValueError(f"Employee with id={id} does not exist.")
+            raise UserNotFoundByIdError(id)
 
         unit_id = employee.unit_id
         unit    = self.unit_repository.get_unit_by_id(unit_id)
 
         if unit is None:
-            raise ValueError(f"Unit with id={unit_id} does not exist.")
+            raise UnitNotFoundByIdError(unit_id)
 
         employee.unit_name = unit.name
 
@@ -125,19 +125,20 @@ class EmployeeService():
             of the employee identified by `id`.
 
         Raises:
-            ValueError:
-            - If the employee does not exist.
-            - If the unit does not exist.
-            - If the employee record is missing required attributes
-            (see EmployeeRepository.get_employee_by_id()).
+            UserNotFoundByCredentialsError: If the employee does not exist.
+            UnitNotFoundByIdError: If the unit does not exist.
+            ValueError: If the employee record is missing required attributes
+                (see EmployeeRepository.get_employee_by_id()).
         """
+        # retrieve Employee object
+        # unit_name is not saved in DB, it is None
         employee = self.employee_repository.get_employee(username, password, unit_id)
         unit     = self.unit_repository.get_unit_by_id(unit_id)
 
         if employee is None:
-            raise ValueError(f"No employee with the given credentials was found.")
+            raise UserNotFoundByCredentialsError(username, unit_id)
         if unit is None:
-            raise ValueError(f"Unit with id={unit_id} does not exist.")
+            raise UnitNotFoundByIdError(unit_id)
 
         employee.unit_name = unit.name
 

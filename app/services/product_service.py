@@ -1,5 +1,6 @@
 from typing import Optional
 from pymongo.results import InsertManyResult, InsertOneResult
+from app.exceptions.exceptions import ProductDoesNotFitInUnit, ProductNotFoundByIdError, UnitNotFoundByIdError
 from app.model.product import Product
 from app.model.unit import Unit
 from app.repositories.unit_repository import UnitRepository
@@ -54,9 +55,8 @@ class ProductService():
             pymongo.results.InsertOneResult: The result of the database insertion.
 
         Raises:
-            ValueError:
-            - If no unit with the given `unit_id` exists.
-            - If any of the neccesary Product fields are missing when creating a Product instance
+            UnitNotFoundByIdError: If no unit with the given `unit_id` exists.
+            ValueError: If any of the neccesary Product fields are missing when creating a Product instance
               from a dictionary
         """
         product: Product
@@ -65,7 +65,7 @@ class ProductService():
         unit = self.unit_repository.get_unit_by_id(unit_id)
 
         if unit is None:
-            raise ValueError(f"Unit with id={unit_id} does not exist.")
+            raise UnitNotFoundByIdError(unit_id)
 
         try:
             product = Product.from_dict(
@@ -184,7 +184,7 @@ class ProductService():
             bool: True if there is space in the unit for the product, False otherwise
 
         Raises:
-            ValueError: If no unit with the given `unit_id` exists
+            UnitNotFoundByIdError: If no unit with the given `unit_id` exists.
         """
         free_space: float
         used_space: float
@@ -192,7 +192,7 @@ class ProductService():
 
         # no unit with unit_id was found
         if unit is None:
-            raise ValueError(f"Unit with id={unit_id} does not exist.")
+            raise UnitNotFoundByIdError(unit_id)
 
         # get storage information for all the products in the unit
         products = self.product_repo.get_quantity_and_volume_by_unit(unit_id)
@@ -302,22 +302,21 @@ class ProductService():
             Product: The updated product
 
         Raises:
-            ValueError:
-                - If no product exists with the given `product_id`
-                - If there is no space for the product in the unit it is in.
-                - If the product could not be updated
+            ProductNotFoundByIdError: If no product exists with the given `product_id`
+            ProductDoesNotFitInUnit: If there is no space for the product in the unit it is in.
+            ValueError: If the product could not be updated
         """
         unit_id: str
         loss: float
         product: Optional[Product] = self.product_repo.get_product_by_id(product_id)
 
         if product is None:
-            raise ValueError(f"Product with id={product_id} does not exist.")
+            raise ProductNotFoundByIdError(product_id)
 
         unit_id = product.unit_id
 
         if not self._does_product_fit_in_unit(unit_id, int(purchased_quantity), float(product.volume)):
-            raise ValueError(f"Product with id={product_id} does not fit into unit with id={unit_id}")
+            raise ProductDoesNotFitInUnit(product_id, unit_id)
 
         # loss MUST BE NEGATIVE because of $inc in the following query
         loss = product.calculate_loss(purchased_quantity)
