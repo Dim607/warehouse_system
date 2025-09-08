@@ -1,9 +1,8 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional
 from pymongo import ASCENDING, DESCENDING
 from pymongo.database import Collection
 from pymongo.results import InsertManyResult, InsertOneResult
 from app.model.product import Product
-from app.repositories.unit_repository import UnitRepository
 
 
 class ProductRepository:
@@ -25,6 +24,7 @@ class ProductRepository:
     def get_products(self) -> List[Product]:
         result = self.product_collection.find()
         return [Product.from_dict(product) for product in result]
+
 
     def get_products_from_unit(self, unit_id: str):
         cursor = self.product_collection.find({"unit_id": unit_id})
@@ -67,6 +67,7 @@ class ProductRepository:
             raise ValueError(f"Failed to update product with id={product_id}")
 
         return Product.from_dict(result)
+
 
     def sell_product(self, product_id: str, sell_quantity: int, profit: float) -> Product:
         """
@@ -113,7 +114,6 @@ class ProductRepository:
 
         Args:
             product (Product): The product to insert
-            unit_id (str): The ID of the unit to which the product belongs
 
         Returns:
             pymongo.results.InsertOneResult: The result of the insertion
