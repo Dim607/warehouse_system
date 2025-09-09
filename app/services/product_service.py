@@ -8,12 +8,12 @@ from app.repositories.product_repository import ProductRepository
 
 
 class ProductService:
-    product_repo: ProductRepository
+    product_repository: ProductRepository
     unit_repository: UnitRepository
 
-    def __init__(self, product_repo: ProductRepository, unit_repo: UnitRepository):
-        self.product_repo = product_repo
-        self.unit_repo = unit_repo
+    def __init__(self, product_repository: ProductRepository, unit_repository: UnitRepository):
+        self.product_repository = product_repository
+        self.unit_repository = unit_repository
 
 
     def get_product_by_id(self, id: str) -> Product:
@@ -32,7 +32,7 @@ class ProductService:
             ValueError: If the product record is missing required attributes
                 (see ProductRepository.get_product_by_id()).
         """
-        product: Optional[Product] = self.product_repo.get_product_by_id(id)
+        product: Optional[Product] = self.product_repository.get_product_by_id(id)
 
         if product is None:
             raise ProductNotFoundByIdError(id)
@@ -51,7 +51,7 @@ class ProductService:
             ValueError: If the product record is missing required attributes
                 (see ProductRepository.from_dict()).
         """
-        return self.product_repo.get_products()
+        return self.product_repository.get_products()
 
 
 
@@ -77,7 +77,7 @@ class ProductService:
         if unit is None:
             raise UnitNotFoundByIdError(unit_id)
 
-        return self.product_repo.get_products_from_unit(unit_id)
+        return self.product_repository.get_products_from_unit(unit_id)
 
 
     def _insert_product_to_unit(
@@ -151,7 +151,7 @@ class ProductService:
         except Exception as e:
             raise ValueError(f"Invalid product format") from e
 
-        result = self.product_repo.insert_product(product)
+        result = self.product_repository.insert_product(product)
 
         return result
 
@@ -224,7 +224,7 @@ class ProductService:
             insert_list.append(product)
         # insert a product to each unit by inserting it multiple times
         # but with different unit_id each time
-        result = self.product_repo.insert_products(insert_list)
+        result = self.product_repository.insert_products(insert_list)
 
         return result
 
@@ -259,7 +259,7 @@ class ProductService:
             raise UnitNotFoundByIdError(unit_id)
 
         # get storage information for all the products in the unit
-        products = self.product_repo.get_quantity_and_volume_by_unit(unit_id)
+        products = self.product_repository.get_quantity_and_volume_by_unit(unit_id)
 
         used_space = sum(p["quantity"] * p["volume"] for p in products)
         free_space = float(unit.volume) - used_space
@@ -372,7 +372,7 @@ class ProductService:
         """
         unit_id: str
         loss: float
-        product: Optional[Product] = self.product_repo.get_product_by_id(product_id)
+        product: Optional[Product] = self.product_repository.get_product_by_id(product_id)
 
         if product is None:
             raise ProductNotFoundByIdError(product_id)
@@ -387,7 +387,7 @@ class ProductService:
 
         # update the product and return the updated document
         try:
-            updated_product = self.product_repo.buy_product(
+            updated_product = self.product_repository.buy_product(
                 product_id, purchased_quantity, loss
             )
         except ValueError as e:
@@ -423,7 +423,7 @@ class ProductService:
                 - The repository fails to update the product.
         """
         profit: float
-        product: Optional[Product] = self.product_repo.get_product_by_id(product_id)
+        product: Optional[Product] = self.product_repository.get_product_by_id(product_id)
 
         if product is None:
             raise ValueError(f"Product with id={product_id} does not exist.")
@@ -431,7 +431,7 @@ class ProductService:
         profit = product.calculate_profit(quantity_to_sell)
 
         try:
-            updated_product = self.product_repo.sell_product(product_id, quantity_to_sell, profit)
+            updated_product = self.product_repository.sell_product(product_id, quantity_to_sell, profit)
         except Exception as e:
             raise ValueError(f"Could not sell product") from e
 
