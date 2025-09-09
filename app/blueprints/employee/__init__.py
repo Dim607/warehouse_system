@@ -1,3 +1,4 @@
+from typing import Optional
 from flask import Blueprint, redirect, request, session, render_template, flash
 from app.blueprints.names import EMPLOYEE_BP
 from app.exceptions.exceptions import UnitNotFoundByIdError, UserNotFoundByIdError
@@ -25,11 +26,16 @@ def create_employee_blueprint(
     @employee_bp.route("/profile", methods=["GET"])
     @login_required
     def show_profile():
-        employee = emp_service.get_employee_by_id(session["employee_id"])
-
-        if employee is None:
-            error = "Could not find employee"
-            return render_template("employee/profile.html", error=error)
+        employee_id: str = session["employee_id"]
+        try:
+            employee = emp_service.get_employee_by_id(employee_id)
+        except (UserNotFoundByIdError, UnitNotFoundByIdError):
+            return render_template("employee/profile.html", error="Could not find employee")
+        except ValueError:
+            return render_template(
+                "employee/profile.html",
+                error="The user's record in the database is missing required attributes.",
+            )
 
         return render_template(
             "employee/profile.html",
@@ -89,6 +95,7 @@ def create_employee_blueprint(
             )
 
         flash("Password successfully changed!", "success")
-        return redirect(render_template("employee/change-password.html"))
+        # return redirect(render_template("employee/change-password.html"))
+        return render_template("employee/change-password.html")
 
     return employee_bp
