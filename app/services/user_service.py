@@ -70,14 +70,14 @@ class UserService:
             unit_id (str): The `id` of the unit the user is assigned to.
 
         Returns:
-            employee (Employee): An Employee object with the information
-            of the employee identified by `id`.
+            user (User): A User object with the information
+            of the user identified by `id`.
 
         Raises:
             UserNotFoundByCredentialsError: If the user does not exist.
             UnitNotFoundByIdError: If the unit does not exist.
             ValueError:
-                - If the employee record is missing required attributes
+                - If the user record is missing required attributes
                 (see UserRepository.get_user()).
                 - If the user has a role field other than: "admin", "supervisor", "employee".
         """
