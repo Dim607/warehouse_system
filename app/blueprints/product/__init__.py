@@ -1,12 +1,13 @@
 from typing import List, Optional
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, session
 from app.blueprints.names import PRODUCT_BP
 from app.model.product import Product
 from app.repositories.product_repository import ProductRepository
+from app.services.product_service import ProductService
 from app.utils.auth_utils import login_required
 
 
-def create_product_blueprint(prod_repo: ProductRepository):
+def create_product_blueprint(prod_repo: ProductRepository, product_service: ProductService):
     product_bp = Blueprint(PRODUCT_BP, __name__, template_folder="templates")
 
 
@@ -16,7 +17,12 @@ def create_product_blueprint(prod_repo: ProductRepository):
         error = None
         products: Optional[List]
 
-        products = prod_repo.get_products()
+        if "unit_id" in session:
+            # products = prod_repo.get_products_from_unit(session["unit_id"])
+            # products = prod_repo.get_products_from_unit("u1")
+            products = product_service.get_products_from_unit(session["unit_id"])
+        else:
+            products = prod_repo.get_products()
 
         if not products:
             error = "No products found"
