@@ -13,6 +13,20 @@ class ProductRepository:
 
 
     def get_product_by_id(self, id: str) -> Product | None:
+        """
+        Get a Product instance from the DB by ID.
+
+        Args:
+            id (str): The ID of the product to retrieve.
+
+        Returns:
+            product (Product): A Product object with the information
+            of the product identified by `id`.
+
+        Raises:
+            ValueError: If the product record is missing required attributes
+                (see Product.from_dict()).
+        """
         result = self.product_collection.find_one({"id": id})
 
         if result is None:
@@ -22,11 +36,35 @@ class ProductRepository:
 
 
     def get_products(self) -> List[Product]:
-        result = self.product_collection.find()
-        return [Product.from_dict(product) for product in result]
+        """
+        Get all the products in the database.
+
+        Returns:
+            List[Product]: A list of Product instances of all the products inside the database.
+
+        Raises:
+            ValueError: If the product record is missing required attributes
+                (see ProductRepository.from_dict()).
+        """
+        cursor = self.product_collection.find()
+        return [Product.from_dict(product) for product in cursor]
 
 
     def get_products_from_unit(self, unit_id: str):
+        """
+        Get all the products inside the unit identified by `unit_id`.
+
+        Args:
+            unit_id (str): The id of the unit from which to get the products from.
+
+        Returns:
+            List[Product]: A list of Product instances of all the products inside the unit
+                identified by `unit_id`.
+
+        Raises:
+            ValueError: If the product record is missing required attributes
+                (see Product.from_dict()).
+        """
         cursor = self.product_collection.find({"unit_id": unit_id})
         return [Product.from_dict(product) for product in cursor]
 
