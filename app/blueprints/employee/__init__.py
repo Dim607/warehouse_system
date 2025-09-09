@@ -1,17 +1,17 @@
-from flask import Blueprint, request, session, render_template, flash
+from flask import Blueprint, redirect, request, session, render_template, flash
 from app.blueprints.names import EMPLOYEE_BP
+from app.exceptions.exceptions import UnitNotFoundByIdError, UserNotFoundByIdError
 from app.repositories.employee_repository import EmployeeRepository
 from app.repositories.product_repository import ProductRepository
 from app.repositories.user_repository import UserRepository
 from app.services.employee_service import EmployeeService
+from app.services.user_service import UserService
 from app.utils.auth_utils import login_required
 
 
 def create_employee_blueprint(
-    user_repo: UserRepository,
-    emp_repo: EmployeeRepository,
-    prod_repo: ProductRepository,
     emp_service: EmployeeService,
+    user_service: UserService
 ) -> Blueprint:
     employee_bp = Blueprint(EMPLOYEE_BP, __name__, url_prefix="/employee", template_folder="templates")
 
@@ -44,7 +44,6 @@ def create_employee_blueprint(
     @employee_bp.route("/change-password", methods=["GET", "POST"])
     @login_required
     def change_password():
-        error = None
         employee_id = session["employee_id"]
 
         if request.method != "POST":
@@ -54,32 +53,42 @@ def create_employee_blueprint(
         password_old = request.form.get("password_old")
         password_new = request.form.get("password_new")
 
-        if password_old == "" or password_new == "" or password_old is None or password_new is None:
-            error = "Both fields are required"
-            return render_template("employee/change-password.html", error=error)
+        if not password_old or not password_new:
+            return render_template(
+                "employee/change-password.html", error="Both fields are required"
+            )
 
         if password_old == password_new:
-            error = "Previous password cannot be the same as new password"
-            return render_template("employee/change-password.html", error=error)
+            return render_template(
+                "employee/change-password.html",
+                error="Previous password cannot be the same as new password",
+            )
 
-        employee = emp_repo.get_employee_by_id(employee_id)
-
-        if employee is None:
-            error = "Could not find employee"
-            return render_template("employee/change-password.html", error=error)
+        try:
+            employee = emp_service.get_employee_by_id(employee_id)
+        except (UserNotFoundByIdError, UnitNotFoundByIdError):
+            return render_template(
+                "employee/change-password.html", error="Could not find employee"
+            )
+        except ValueError:
+            return render_template(
+                "employee/change-password.html",
+                error="The user's record in the database is missing required attributes.",
+            )
 
         if employee.password != password_old:
-            error = "Previous password is incorrect"
-            return render_template("employee/change-password.html", error=error)
+            return render_template(
+                "employee/change-password.html", error="Previous password is incorrect."
+            )
 
-        is_password_changed = user_repo.change_password(employee_id, password_new) 
+        is_password_changed = user_service.change_password(employee_id, password_new)
 
         if is_password_changed is False:
-            error = "Could not change password"
-            return render_template("employee/change-password.html", error=error)
+            return render_template(
+                "employee/change-password.html", error="Could not change password."
+            )
 
         flash("Password successfully changed!", "success")
-        return render_template("employee/change-password.html")
-
+        return redirect(render_template("employee/change-password.html"))
 
     return employee_bp

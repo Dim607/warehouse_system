@@ -67,7 +67,7 @@ def create_server():
 
     # Add blueprints for routes
     server.register_blueprint(create_auth_blueprint(user_service))
-    server.register_blueprint(create_employee_blueprint(usr_repo, emp_repo, prd_repo, employee_service))
+    server.register_blueprint(create_employee_blueprint(employee_service, user_service))
     server.register_blueprint(create_product_blueprint(prd_repo, product_service))
 
     return server
