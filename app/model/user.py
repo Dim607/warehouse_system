@@ -82,7 +82,7 @@ class User:
     @classmethod
     def from_dict(cls: Type[UserOrSubclass], data: Dict[str, Any]) -> UserOrSubclass:
         """
-        Returns an User instance from a dictionary
+        Returns a User instance from a dictionary
 
 
         Use this method to create an User object where `unit_name` is allowed to be missing.
@@ -101,7 +101,7 @@ class User:
             - `unit_name`
 
         Returns:
-            User: An User instance initialize with the given attributes
+            User: A User instance initialized with the given attributes
 
         Raises:
             ValueError: If any required attribute is missing or None.
