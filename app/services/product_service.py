@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from pymongo.results import InsertManyResult, InsertOneResult
 from app.exceptions.exceptions import ProductDoesNotFitInUnit, ProductNotFoundByIdError, UnitNotFoundByIdError
 from app.model.product import Product
@@ -14,6 +14,70 @@ class ProductService:
     def __init__(self, product_repo: ProductRepository, unit_repo: UnitRepository):
         self.product_repo = product_repo
         self.unit_repo = unit_repo
+
+
+    def get_product_by_id(self, id: str) -> Product:
+        """
+        Get a Product instance from the DB by ID.
+
+        Args:
+            id (str): The ID of the product to retrieve.
+
+        Returns:
+            product (Product): A Product object with the information
+            of the employee identified by `id`.
+
+        Raises:
+            ProductNotFoundByIdError: If the product does not exist.
+            ValueError: If the product record is missing required attributes
+                (see ProductRepository.get_product_by_id()).
+        """
+        product: Optional[Product] = self.product_repo.get_product_by_id(id)
+
+        if product is None:
+            raise ProductNotFoundByIdError(id)
+
+        return product
+
+
+    def get_products(self) -> List[Product]:
+        """
+        Get all the products in the database.
+
+        Returns:
+            List[Product]: A list of Product instances of all the products inside the database.
+
+        Raises:
+            ValueError: If the product record is missing required attributes
+                (see ProductRepository.from_dict()).
+        """
+        return self.product_repo.get_products()
+
+
+
+    def get_products_from_unit(self, unit_id: str) -> List[Product]:
+        """
+        Get all the products inside the unit identified by `unit_id`.
+
+        Args:
+            unit_id (str): The id of the unit from which to get the products from.
+
+        Returns:
+            List[Product]: A list of Product instances of all the products inside the unit
+                identified by `unit_id`.
+
+        Raises:
+            UnitNotFoundByIdError: If the unit does not exist.
+            ValueError: If the product record is missing required attributes
+                (see ProductRepository.get_products_from_unit()).
+        """
+
+        unit: Optional[Unit] = self.unit_repository.get_unit_by_id(unit_id)
+
+        if unit is None:
+            raise UnitNotFoundByIdError(unit_id)
+
+        return self.product_repo.get_products_from_unit(unit_id)
 
 
     def _insert_product_to_unit(
