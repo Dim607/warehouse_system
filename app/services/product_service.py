@@ -7,7 +7,7 @@ from app.repositories.unit_repository import UnitRepository
 from app.repositories.product_repository import ProductRepository
 
 
-class ProductService():
+class ProductService:
     product_repo: ProductRepository
     unit_repository: UnitRepository
 
