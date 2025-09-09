@@ -17,11 +17,10 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
         error = None
         products: Optional[List]
 
+        # if a user or supervisor is logged in
         if "unit_id" in session:
-            # products = prod_repo.get_products_from_unit(session["unit_id"])
-            # products = prod_repo.get_products_from_unit("u1")
             products = product_service.get_products_from_unit(session["unit_id"])
-        else:
+        else: # if admin is logged in
             products = prod_repo.get_products()
 
         if not products:
