@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import  Optional
 from pymongo.results import InsertOneResult
 from app.exceptions.exceptions import UnitNotFoundByIdError
 from app.model.unit import Unit
@@ -51,7 +51,7 @@ class UnitService:
 
         Raises:
             ValueError:
-            - If the employee record is missing required attributes
+            - If the unit record is missing required attributes
             (see UnitRepository.insert_unit()).
         """
 

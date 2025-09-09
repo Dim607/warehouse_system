@@ -12,6 +12,7 @@ class Unit:
         self.name: str     = name
         self.volume: float = volume
 
+
     def __str__(self) -> str:
         return ", ".join(map(str, [
             self.id,
@@ -27,7 +28,10 @@ class Unit:
 
     def to_dict(self) -> dict:
         """
-        Return the product as a dict
+        Convert the Unit object into a full dictionary representation.
+
+        Returns:
+            dict[str, Any]: A dictionary containing all attributes of the unit.
         """
         return {
             "id":     self.id,
@@ -39,11 +43,22 @@ class Unit:
     @classmethod
     def from_dict(cls, data):
         """
-        Get a unit object from a dictionary
+        Returns a Unit instance from a dictionary
 
-        Can raise an exception if any of the attributes `name` or `volume` are missing
+        This method validates that all required attributes are present and non-None.
+        Raises ValueError if any required attribute is missing.
 
-        :param data: A dictionary that has the unit's attributes as keys
+        Args:
+            data (dict): Dictionary containing the user attributes.
+            The following keys are required:
+            - `name`
+            - `volume`
+
+        Returns:
+            Unit: A Unit instance initialized with the given attributes
+
+        Raises:
+            ValueError: If any required attribute is missing or None.
         """
         # id can be None so dont include it in the attr list
         attributes = ["name", "volume"]
@@ -59,7 +74,3 @@ class Unit:
         )
 
         return unit 
-
-
-    def add_product(self):
-        pass
