@@ -55,20 +55,20 @@ def create_employee_blueprint(
 
         if not password_old or not password_new:
             return render_template(
-                "employee/change-password.html", error="Both fields are required"
+                "employee/change-password.html", error="Both fields are required."
             )
 
         if password_old == password_new:
             return render_template(
                 "employee/change-password.html",
-                error="Previous password cannot be the same as new password",
+                error="Previous password cannot be the same as new password.",
             )
 
         try:
             employee = emp_service.get_employee_by_id(employee_id)
         except (UserNotFoundByIdError, UnitNotFoundByIdError):
             return render_template(
-                "employee/change-password.html", error="Could not find employee"
+                "employee/change-password.html", error="Could not find employee."
             )
         except ValueError:
             return render_template(
