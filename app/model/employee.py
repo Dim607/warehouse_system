@@ -15,15 +15,18 @@ class Employee(User):
         password: str,
         unit_id: str,
         unit_name: Optional[str],
+        role: Optional[str] = None
     ):
         super().__init__(
-            id,
-            name,
-            surname,
-            username,
-            password,
-            unit_id,
-            unit_name,
+            id        = id,
+            name      = name,
+            surname   = surname,
+            username  = username,
+            password  = password,
+            unit_id   = unit_id,
+            unit_name = unit_name,
+            # for when creating a supervisor
+            role      = role if role is not  None else "employee"
         )
 
 
@@ -41,6 +44,11 @@ class Employee(User):
             self.unit_id,
             self.unit_name,
         ]))
+
+
+    def __repr__(self) -> str:
+        attrs = ", ".join(f"{k}={v!r}" for k, v in vars(self).items())
+        return f"Employee({attrs})"
 
 
     def change_password(self, new_password: str) -> bool:

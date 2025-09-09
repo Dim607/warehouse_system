@@ -14,6 +14,7 @@ class User:
     unit_name: Optional[str] = None
     role: str                = ""
 
+
     def __init__(
         self,
         id: Optional[str],
@@ -23,6 +24,7 @@ class User:
         password: str,
         unit_id: str,
         unit_name: Optional[str],
+        role: str
     ):
         self.id        = id if id is not None else str(uuid.uuid4())
         self.name      = name
@@ -31,6 +33,7 @@ class User:
         self.password  = password
         self.unit_id   = unit_id
         self.unit_name = unit_name
+        self.role      = role
 
 
     def to_dict(self) -> dict[str, Any]:
@@ -77,7 +80,9 @@ class User:
             password  = user.password,
             unit_id   = user.unit_id,
             unit_name = user.unit_name,
+            role      = user.role
         )
+
 
     @classmethod
     def from_dict(cls: Type[UserOrSubclass], data: Dict[str, Any]) -> UserOrSubclass:
@@ -171,5 +176,6 @@ class User:
             password  = str(data["password"]),
             unit_id   = str(data["unit_id"]),
             unit_name = data.get("unit_name"),
+            role      = str(data["role"])
         )
         return user

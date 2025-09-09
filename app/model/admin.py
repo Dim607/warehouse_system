@@ -21,6 +21,7 @@ class Admin(User):
             password  = password,
             unit_id   = "",
             unit_name = "",
+            role      = "admin"
         )
 
 

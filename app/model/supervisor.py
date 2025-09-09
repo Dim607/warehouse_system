@@ -6,6 +6,7 @@ from app.model.employee import Employee
 class Supervisor(Employee):
     role: str = "supervisor"
 
+
     def __init__(
         self,
         id: Optional[str],
@@ -17,14 +18,20 @@ class Supervisor(Employee):
         unit_name: str,
     ):
         super().__init__(
-            id,
-            name,
-            surname,
-            username,
-            password,
-            unit_id,
-            unit_name,
+            id        = id,
+            name      = name,
+            surname   = surname,
+            username  = username,
+            password  = password,
+            unit_id   = unit_id,
+            unit_name = unit_name,
+            role      = "supervisor"
         )
+
+
+    def __repr__(self) -> str:
+        attrs = ", ".join(f"{k}={v!r}" for k, v in vars(self).items())
+        return f"Supervisor({attrs})"
 
 
     # it is not specified if the supervisor should also assign a username
