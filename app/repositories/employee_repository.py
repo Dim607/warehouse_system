@@ -74,12 +74,11 @@ class EmployeeRepository:
 
         return Employee.from_persistence_dict(result)
 
-
     def insert_employee(self, employee: Employee) -> InsertOneResult:
         """
         Inserts an employee to the database
 
-        Removes the field `unit_name` from `employee`, 
+        Removes the field `unit_name` from `employee`,
         since only the `unit_id` is needed.
 
         Args:
