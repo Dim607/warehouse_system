@@ -7,7 +7,7 @@ from app.repositories.product_repository import ProductRepository
 from app.repositories.user_repository import UserRepository
 from app.services.employee_service import EmployeeService
 from app.services.user_service import UserService
-from app.utils.auth_utils import login_required
+from app.utils.auth_utils import login_required, required_role
 
 
 def create_employee_blueprint(
@@ -18,8 +18,9 @@ def create_employee_blueprint(
 
     @employee_bp.route("/profile", methods=["GET"])
     @login_required
+    @required_role("employee")
     def show_profile():
-        employee_id: str = session["employee_id"]
+        employee_id: str = session["user_id"]
         try:
             employee = emp_service.get_employee_by_id(employee_id)
         except (UserNotFoundByIdError, UnitNotFoundByIdError):
@@ -42,6 +43,7 @@ def create_employee_blueprint(
 
     @employee_bp.route("/change-password", methods=["GET", "POST"])
     @login_required
+    @required_role("employee")
     def change_password():
         employee_id = session["employee_id"]
 
