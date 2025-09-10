@@ -45,7 +45,7 @@ def create_employee_blueprint(
     @login_required
     @required_role("employee")
     def change_password():
-        employee_id = session["employee_id"]
+        employee_id = session["user_id"]
 
         if request.method != "POST":
             return render_template("employee/change-password.html")
