@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Literal, Optional
 from pymongo.results import InsertManyResult, InsertOneResult
 from app.exceptions.exceptions import ProductDoesNotFitInUnit, ProductNotFoundByIdError, UnitNotFoundByIdError
 from app.model.product import Product
@@ -344,6 +344,57 @@ class ProductService:
             manufacturer,
         )
         return result
+
+#####################################################################################################
+# Search and sort
+
+    def search_products(
+        self,
+        order_field: Optional[str],
+        order_type: Optional[str],
+        name: Optional[str],
+        id: Optional[str],
+        min_quantity: Optional[int],
+        max_quantity: Optional[int],
+        unit_id: Optional[str]
+    ) -> List[Product]:
+        """
+        Search the database and order results.
+
+        This method can search for products based on `name`, `id`,
+        or quantity range ([`min_quantity`, `max_quantity`]).
+
+        It can also order the found products based on `order_field`.
+
+        Args:
+            order_field (str | None): The field by which to order.
+            order_type (str | None): The order type, ascending or descending.
+            name (str | None): The name of the product to search.
+            id (str | None): The id of the product to search.
+            min_quantity (int | None): The minimum product quantity in the database.
+            max_quantity (int | None): The maximum product quantity in the database.
+            unit_id (str | None): The id of the unit to search. If None all units are searched.
+
+        Returns:
+            List[Product]: List of products that match the search query, sorted if requested.
+
+        Raises:
+            ValueError: If min_quantity or max_quantity are negative or if min_quantity > max_quantity.
+        """
+
+        if min_quantity is not None and max_quantity is not None:
+            # are indexes valid?
+            if (min_quantity > max_quantity) or (min_quantity < 0 or max_quantity < 0):
+                raise ValueError(f"Invalid prices for min_quanity={min_quantity} and max_quantity={max_quantity}")
+
+        # is order_field valid?
+        if order_field != "name" and order_field != "quantity":
+            return  self.product_repository.search_products(None, None, name, id, min_quantity, max_quantity, unit_id)
+
+        # No need to check order_type, ascending is default unless descending is specified
+        return self.product_repository.search_products(order_field, order_type, name, id, min_quantity, max_quantity, unit_id) 
+
+#####################################################################################################
 
 
     def buy_product(

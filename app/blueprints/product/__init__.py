@@ -14,14 +14,14 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
     @product_bp.route("/products", methods=["GET"])
     @login_required
     def get_all_products():
-        error = None
+        error: Optional[str] = None
         products: Optional[List]
 
         # if a user or supervisor is logged in
         if "unit_id" in session:
             products = product_service.get_products_from_unit(session["unit_id"])
         else: # if admin is logged in
-            products = prod_repo.get_products()
+            products = product_service.get_products()
 
         if not products:
             error = "No products found"
@@ -34,37 +34,41 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
     def search_products():
         error: str = ""
         products: List[Product] = []
-        start_index_int: int
-        end_index_int: int
+        start_index_int: Optional[int] = None
+        end_index_int: Optional[int]   = None
 
         if request.method != "POST":
             return render_template("product/search_products.html")
 
-        order_field: Optional[str]  = request.form.get("order_field")
-        order_type: Optional[str]   = request.form.get("order_type")
-        product_name: Optional[str] = request.form.get("product_name")
-        product_id: Optional[str]   = request.form.get("product_id")
-        start_index: Optional[str]  = request.form.get("start_index")
-        end_index: Optional[str]    = request.form.get("end_index")
+        # if the field is falsy (here it can be empty string "") assign None
+        # 0 can be falsy, this is not a problem because if 0 is entered in form
+        # min_quanity will be "0" which is not falsy
+        order_field: Optional[str]   = request.form.get("order_field") or None
+        order_type: Optional[str]    = request.form.get("order_type") or None
+        product_name: Optional[str]  = request.form.get("product_name") or None
+        product_id: Optional[str]    = request.form.get("product_id") or None
+        min_quantity: Optional[str]  = request.form.get("start_index") or None
+        max_quantity: Optional[str]  = request.form.get("end_index") or None
+        unit_id: Optional[str]       = session.get("unit_id")
 
-        if start_index is not None and end_index is not None:
+        # are both present?
+        if min_quantity not in ("", None) and max_quantity not in ("", None):
             try:
-                start_index_int = int(start_index)
-                end_index_int   = int(end_index)
-            except:
+                start_index_int = int(min_quantity)
+                end_index_int   = int(max_quantity)
+            except ValueError:
                 error = "From and To fields must be numbers"
                 return render_template("product/search_products.html", error=error, products=products)
 
-        # is order_field valid?
-        if order_field != "name" and order_field != "quantity":
-            products = prod_repo.search_products(None, None, product_name, product_id, start_index_int, end_index_int)
-        else:
-        # No need to check order_type, ascending is default unless descending is specified
-            products = prod_repo.search_products(order_field, order_type, product_name, product_id, start_index_int, end_index_int)
+        try: 
+            products = product_service.search_products(order_field, order_type, product_name, product_id, start_index_int, end_index_int, unit_id)
+        except ValueError:
+            error = "Invalid prices for range fields."
+            return render_template("product/search_products.html", error=error)
 
         if not products:
             error = "No products found"
-            return render_template("product/search_products.html", error=error, products=products)
+            return render_template("product/search_products.html", error=error)
 
         return render_template("product/search_products.html", error=error, products=products)
 

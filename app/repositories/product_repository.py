@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Literal, Optional
 from pymongo import ASCENDING, DESCENDING
 from pymongo.database import Collection
 from pymongo.results import InsertManyResult, InsertOneResult
@@ -172,16 +172,45 @@ class ProductRepository:
         return self.product_collection.insert_many([p.to_dict() for p in products])
 
 
-    """ FIXME do not raise value error """
     def search_products(
         self,
         order_field: Optional[str],
         order_type: Optional[str],
         name: Optional[str],
         id: Optional[str],
-        start_index: Optional[int],
-        end_index: Optional[int],
+        min_quantity: Optional[int],
+        max_quantity: Optional[int],
+        unit_id: Optional[str]
     ) -> List[Product]:
+        """
+        Search the database and order results.
+
+        This method can search for products based on `name`, `id`,
+        or quantity range ([`min_quantity`, `max_quantity`]).
+
+        It can also order the results of the find query based on `order_field`.
+        If the `order_type` has a value other than "descending",
+        the products are sorted in ascending order.
+
+        This method:
+        1) Checks which of the search fields (`name`, `id`, `min_quantity`, `max_quantity`)
+            are specified and applies them to the find query.
+        2) Checks if `order_field` is specified.
+            If it is, orders results based on `order_type`.
+
+        Args:
+            order_field (str | None): The field by which to order.
+            order_type (str | None): The order type, ascending or descending.
+                If not specified (None or other value) defaults to ascending order.
+            name (str | None): The name of the product to search.
+            id (str | None): The id of the product to search.
+            min_quantity (int | None): The minimum product quantity in the database.
+            max_quantity (int | None): The maximum product quantity in the database.
+            unit_id (str | None): The id of the unit to search. If None all units are searched.
+
+        Returns:
+            List[Product]: List of products that match the search query, sorted if requested.
+        """
 
         query: dict = {}
         cursor = []
@@ -192,17 +221,13 @@ class ProductRepository:
         if id is not None:
             query["id"] = id
 
+        if unit_id is not None:
+            query["unit_id"] = unit_id
+
+        if min_quantity is not None and max_quantity is not None:
+            query["quantity"] = {"$gte": min_quantity, "$lte": max_quantity}
+
         cursor = self.product_collection.find(query)
-
-        if start_index is not None and end_index is not None:
-            # are indexes valid?
-            if (start_index > end_index) or (start_index < 0 or end_index < 0):
-                raise ValueError
-
-            # slash using start and end indexes
-            limit: int = end_index - start_index
-            # skip the first start_index results and show up to limit results
-            cursor = cursor.skip(start_index).limit(limit)
 
         if order_field is not None:
             if order_type == "descending":
