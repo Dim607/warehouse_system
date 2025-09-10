@@ -4,7 +4,7 @@ from app.blueprints.names import PRODUCT_BP
 from app.model.product import Product
 from app.repositories.product_repository import ProductRepository
 from app.services.product_service import ProductService
-from app.utils.auth_utils import login_required
+from app.utils.auth_utils import login_required, required_role
 
 
 def create_product_blueprint(prod_repo: ProductRepository, product_service: ProductService):
@@ -13,6 +13,7 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
 
     @product_bp.route("/products", methods=["GET"])
     @login_required
+    @required_role("employee")
     def get_all_products():
         error: Optional[str] = None
         products: Optional[List]
@@ -31,6 +32,7 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
 
     @product_bp.route("/search-products", methods=["GET", "POST"])
     @login_required
+    @required_role("employee")
     def search_products():
         error: str = ""
         products: List[Product] = []
@@ -60,7 +62,7 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
                 error = "From and To fields must be numbers"
                 return render_template("product/search_products.html", error=error, products=products)
 
-        try: 
+        try:
             products = product_service.search_products(order_field, order_type, product_name, product_id, start_index_int, end_index_int, unit_id)
         except ValueError:
             error = "Invalid prices for range fields."
@@ -76,6 +78,7 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
     @product_bp.route("/view-product", methods=["GET", "POST"])
     @product_bp.route("/products/<product_id>", methods=["GET"])
     @login_required
+    @required_role("employee")
     def view_product(product_id: Optional[str] = None):
         error: str = ""
         product: Optional[Product] = None
@@ -128,6 +131,7 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
 
 
     @login_required
+    @required_role("employee")
     def sell_product():
         pass
 
