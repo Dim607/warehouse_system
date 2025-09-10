@@ -3,6 +3,7 @@ from pymongo import MongoClient
 from app.blueprints.auth import create_auth_blueprint
 from app.blueprints.employee import create_employee_blueprint
 from app.blueprints.product import create_product_blueprint
+from app.blueprints.user import create_user_blueprint
 from app.custom_flask import CustomFlask
 from app.model.unit import Unit
 from app.repositories import product_repository
@@ -68,6 +69,7 @@ def create_server():
     # Add blueprints for routes
     server.register_blueprint(create_auth_blueprint(user_service))
     server.register_blueprint(create_employee_blueprint(employee_service, user_service))
+    server.register_blueprint(create_user_blueprint(user_service))
     server.register_blueprint(create_product_blueprint(prd_repo, product_service))
 
     return server

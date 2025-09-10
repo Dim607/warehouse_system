@@ -20,7 +20,7 @@ def create_employee_blueprint(
     @employee_bp.route("/", methods=["GET"])
     @login_required
     def dashboard():
-        return render_template("employee/employee_dashboard.html")
+        return render_template("user/dashboard.html", role=session["role"])
 
 
     @employee_bp.route("/profile", methods=["GET"])

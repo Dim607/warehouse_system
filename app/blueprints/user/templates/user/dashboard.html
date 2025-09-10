@@ -3,6 +3,7 @@
   <head></head>
   <body>
     <h1>Dashboard</h1>
+    {% if role in ["employee", "supervisor", "admin"] %}
     <table>
       <tr>
         <td>
@@ -30,5 +31,13 @@
         </td>
       </tr>
     </table>
+
+    {% endif %}
+
+    {% if role in ["supervisor", "admin"] %}
+    {% endif %}
+
+    {% if role in ["admin"] %}
+    {% endif %}
   </body>
 </html>
