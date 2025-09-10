@@ -11,4 +11,10 @@ from app.services.user_service import UserService
 def create_user_blueprint(user_service: UserService):
     user_bp = Blueprint(USER_BP, __name__, template_folder="templates")
 
+
+    @user_bp.route("/", methods=["GET"])
+    @login_required
+    def dashboard():
+        return render_template("user/dashboard.html", role=session["role"])
+
     return user_bp

@@ -14,14 +14,7 @@ def create_employee_blueprint(
     emp_service: EmployeeService,
     user_service: UserService
 ) -> Blueprint:
-    employee_bp = Blueprint(EMPLOYEE_BP, __name__, url_prefix="/employee", template_folder="templates")
-
-
-    @employee_bp.route("/", methods=["GET"])
-    @login_required
-    def dashboard():
-        return render_template("user/dashboard.html", role=session["role"])
-
+    employee_bp = Blueprint(EMPLOYEE_BP, __name__, template_folder="templates")
 
     @employee_bp.route("/profile", methods=["GET"])
     @login_required
