@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, url_for, request, session, redirect, rende
 from app.model import employee
 from app.model.admin import Admin
 from app.model.supervisor import Supervisor
-from app.blueprints.names import ADMIN_BP, EMPLOYEE_BP, AUTH_BP, SUPERVISOR_BP
+from app.blueprints.names import ADMIN_BP, EMPLOYEE_BP, AUTH_BP, SUPERVISOR_BP, USER_BP
 from app.services.user_service import UserService
 
 
@@ -30,31 +30,17 @@ def create_auth_blueprint(user_service: UserService) -> Blueprint:
         password = "12"
         unit_id = "u1"
 
-
         user = user_service.get_user(username, password, unit_id)
-
 
         if user is None:
             error = "Invalid credentials"
             return render_template(f"{AUTH_BP}/login.html", error=error)
 
-        if isinstance(user, Admin):
-            session["admin_id"] = user.id
-            return redirect(url_for(f"{ADMIN_BP}.dashboard"))
+        session["user_id"] = user.id
+        session["unit_id"] = user.unit_id
+        session["role"]    = user.role
 
-        if isinstance(user, Supervisor):
-            session["supervisor_id"] = user.id
-            session["unit_id"] = unit_id
-            return redirect(url_for(f"{SUPERVISOR_BP}.dashboard"))
-
-        if isinstance(user, employee.Employee):
-            session["employee_id"] = user.id
-            session["unit_id"] = unit_id
-            return redirect(url_for(f"{EMPLOYEE_BP}.dashboard"))
-
-        """ TODO DO SOMETHING HERE"""
-        return jsonify({"message": "Problem"}, 400)
-
+        return redirect(url_for(f"{USER_BP}.dashboard", role=session["role"]))
 
 
     @auth_bp.route("/logout", methods=["GET"])
@@ -64,6 +50,10 @@ def create_auth_blueprint(user_service: UserService) -> Blueprint:
         session.pop("admin_id")
         return redirect(url_for(f"{AUTH_BP}.login"))
 
+
+    @auth_bp.route("/permissions", methods=["GET"])
+    def missing_permissions():
+        return render_template(f"{AUTH_BP}/missing_permissions.html")
 
     return auth_bp
 
