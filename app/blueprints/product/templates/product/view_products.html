@@ -3,17 +3,17 @@
   <head></head>
   <body>
     <table>
+      {% for product in products %}
       <tr>
         <th>name</th>
         <th>quantity</th>
         <th>action</th>
       </tr>
-      {% for product in products %}
       <tr>
         <td>{{ product.name }}</td>
         <td>{{ product.quantity }}</td>
         <td>
-          <a href="{{ url_for('product.view_product',  product_id=product.id) }}">View info</a>
+          <a href="{{ url_for('product.view_product', product_id=product.id) }}">View info</a>
         </td>
       </tr>
       {% endfor %}
