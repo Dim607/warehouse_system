@@ -66,6 +66,8 @@ def required_role(min_role: str):
 
 
 def is_admin_logged_in() -> bool:
-    if "unit_id" in session:
-        return False
-    return True
+    # Maybe if role not in sessio nredirect to login page
+    if "role" in session:
+        if session["role"] == "admin":
+            return True
+    return False
