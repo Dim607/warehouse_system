@@ -63,3 +63,9 @@ def required_role(min_role: str):
             return f(**kwargs)
         return wrapped
     return decorator
+
+
+def is_admin_logged_in() -> bool:
+    if "unit_id" in session:
+        return False
+    return True
