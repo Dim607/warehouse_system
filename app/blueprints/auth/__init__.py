@@ -48,7 +48,7 @@ def create_auth_blueprint(user_service: UserService) -> Blueprint:
         session["unit_id"] = user.unit_id
         session["role"]    = user.role
 
-        return redirect(url_for(f"{USER_BP}.dashboard", role=session["role"]))
+        return redirect(url_for(f"{USER_BP}.dashboard"))
 
 
     @auth_bp.route("/logout", methods=["GET"])
