@@ -1,8 +1,10 @@
 from flask import Blueprint, jsonify, url_for, request, session, redirect, render_template
+from app.exceptions.exceptions import UnitNotFoundByIdError, UserNotFoundByCredentialsError
 from app.model import employee
 from app.model.admin import Admin
 from app.model.supervisor import Supervisor
 from app.blueprints.names import ADMIN_BP, EMPLOYEE_BP, AUTH_BP, SUPERVISOR_BP, USER_BP
+from app.model.user import User
 from app.services.user_service import UserService
 
 
@@ -30,11 +32,17 @@ def create_auth_blueprint(user_service: UserService) -> Blueprint:
         password = "12"
         unit_id = "u1"
 
-        user = user_service.get_user(username, password, unit_id)
+        user: User
 
-        if user is None:
-            error = "Invalid credentials"
-            return render_template(f"{AUTH_BP}/login.html", error=error)
+        try:
+            user = user_service.get_user(username, password, unit_id)
+        except (UserNotFoundByCredentialsError, UnitNotFoundByIdError):
+            return render_template(f"{AUTH_BP}/login.html", error="Invalid credentials")
+        except ValueError:
+            return render_template(
+                f"{AUTH_BP}/login.html",
+                error="The user's record in the database is missing required attributes.",
+            )
 
         session["user_id"] = user.id
         session["unit_id"] = user.unit_id
@@ -45,9 +53,7 @@ def create_auth_blueprint(user_service: UserService) -> Blueprint:
 
     @auth_bp.route("/logout", methods=["GET"])
     def logout():
-        session.pop("employee_id")
-        session.pop("supervisor_id")
-        session.pop("admin_id")
+        session.clear()
         return redirect(url_for(f"{AUTH_BP}.login"))
 
 
