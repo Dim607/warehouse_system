@@ -12,13 +12,8 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
     product_bp = Blueprint(PRODUCT_BP, __name__, template_folder="templates")
 
 
-    @product_bp.route("/products", methods=["GET"])
-    @login_required
-    @required_role("employee")
-    def get_all_products():
+    def _view_products(view_products_page: str):
         products: Optional[List]
-        view_products_page = "product/view_products.html"
-
         if is_admin_logged_in():
             try:
                 products = product_service.get_products()
@@ -38,6 +33,7 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
         return render_template(view_products_page, products=[product.to_dict() for product in products])
 
 
+
     @product_bp.route("/search-products", methods=["GET", "POST"])
     @login_required
     @required_role("employee")
@@ -49,7 +45,7 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
         search_products_page: str           = "product/search_products.html"
 
         if request.method != "POST":
-            return render_template(search_products_page)
+            _view_products(search_products_page)
 
         # if the field is falsy (here it can be empty string "") assign None
         # 0 can be falsy, but this is not a problem because if 0 is entered in form
@@ -89,9 +85,9 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
     @login_required
     @required_role("employee")
     def view_product(product_id: Optional[str] = None):
-        error: str = ""
+        error: str                 = ""
         product: Optional[Product] = None
-        view_product_page: str = "product/view_product.html"
+        view_product_page: str     = "product/view_product.html"
 
         # Case 1: Came here after viewing all products and choosing one
         if product_id:

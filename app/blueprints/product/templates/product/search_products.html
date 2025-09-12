@@ -5,7 +5,6 @@
   <body>
     <form method="post" action="{{ url_for('product.search_products') }}">
       <table>
-        <tr>
           <td>
             <label for="order-field-input">Choose field to base order:</label>
           </td>
@@ -67,7 +66,7 @@
     <br>
     <!-- Table containing all products that fit the search filters-->
     <table>
-      {% for product in products %}
+      {% if products %}
       <tr>
         <th>id</th>
         <th>name</th>
@@ -82,6 +81,8 @@
         <th>unit_gain</th>
         <th>action</th>
       </tr>
+      {% endif %}
+      {% for product in products %}
       <tr>
         <td>{{ product.id }}</td>
         <td>{{ product.name }}</td>
@@ -94,6 +95,9 @@
         <td>{{ product.selling_price }}</td>
         <td>{{ product.manufacturer }}</td>
         <td>{{ product.unit_gain}}</td>
+        <td>
+          <a href="{{ url_for('product.view_product', product_id=product.id) }}">View info</a>
+        </td>
       </tr>
       {% endfor %}
     </table>
