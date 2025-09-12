@@ -14,24 +14,22 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
 
     def _view_products(view_products_page: str):
         products: Optional[List]
-        if is_admin_logged_in():
-            try:
+
+        try:
+            if is_admin_logged_in():
                 products = product_service.get_products()
-            except ValueError:
-                return render_template(view_products_page, error="No products found")
-        else:
-            try:
+            else:
                 products = product_service.get_products_from_unit(session["unit_id"])
-            except UnitNotFoundByIdError:
-                return render_template(view_products_page, error="Could not find your unit.")
-            except ValueError:
-                return render_template(
-                    view_products_page,
-                    error="The product's record in the database is missing required attributes.",
-                )
+
+        except UnitNotFoundByIdError:
+            return render_template(view_products_page, error="Could not find your unit.")
+        except ValueError:
+            return render_template(
+                view_products_page,
+                error="The product's record in the database is missing required attributes.",
+            )
 
         return render_template(view_products_page, products=[product.to_dict() for product in products])
-
 
 
     @product_bp.route("/search-products", methods=["GET", "POST"])
