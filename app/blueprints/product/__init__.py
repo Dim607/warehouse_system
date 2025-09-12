@@ -1,5 +1,5 @@
 from typing import List, Optional
-from flask import Blueprint, request, render_template, session
+from flask import Blueprint, redirect, request, render_template, session, url_for
 from app.blueprints.names import PRODUCT_BP
 from app.exceptions.exceptions import ProductNotFoundByIdError, UnitNotFoundByIdError
 from app.model.product import Product
@@ -38,11 +38,11 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
     @login_required
     @required_role("employee")
     def search_products():
-        error: str                          = ""
-        products: List[Product]             = []
-        start_index_int: Optional[int]      = None
-        end_index_int: Optional[int]        = None
-        search_products_page: str           = "product/search_products.html"
+        error: str                     = ""
+        products: List[Product]        = []
+        start_index_int: Optional[int] = None
+        end_index_int: Optional[int]   = None
+        search_products_page: str      = "product/search_products.html"
 
         if request.method != "POST":
             _view_products(search_products_page)
@@ -50,13 +50,13 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
         # if the field is falsy (here it can be empty string "") assign None
         # 0 can be falsy, but this is not a problem because if 0 is entered in form
         # min_quantity will be "0" which is not falsy
-        order_field: Optional[str]   = request.form.get("order_field") or None
-        order_type: Optional[str]    = request.form.get("order_type") or None
-        product_name: Optional[str]  = request.form.get("product_name") or None
-        product_id: Optional[str]    = request.form.get("product_id") or None
-        min_quantity: Optional[str]  = request.form.get("start_index") or None
-        max_quantity: Optional[str]  = request.form.get("end_index") or None
-        unit_id: Optional[str]       = session.get("unit_id")
+        order_field: Optional[str]  = request.form.get("order_field") or None
+        order_type: Optional[str]   = request.form.get("order_type") or None
+        product_name: Optional[str] = request.form.get("product_name") or None
+        product_id: Optional[str]   = request.form.get("product_id") or None
+        min_quantity: Optional[str] = request.form.get("start_index") or None
+        max_quantity: Optional[str] = request.form.get("end_index") or None
+        unit_id: Optional[str]      = session.get("unit_id")
 
         # are both present?
         if min_quantity not in ("", None) and max_quantity not in ("", None):
@@ -80,18 +80,17 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
         return render_template(search_products_page, error=error, products=products)
 
 
-    @product_bp.route("/view-product", methods=["GET", "POST"])
-    @product_bp.route("/products/<product_id>", methods=["GET"])
+    @product_bp.route("/products", methods=["GET", "POST"])
+    # need POST to build ulr, otherwise it would be /products?product_id=<value> when manual searching
+    @product_bp.route("/products/<product_id>", methods=["GET", "POST"]) 
     @login_required
     @required_role("employee")
     def view_product(product_id: Optional[str] = None):
-        error: str                 = ""
         product: Optional[Product] = None
         view_product_page: str     = "product/view_product.html"
 
         # Case 1: Came here after viewing all products and choosing one
         if product_id:
-            product = prod_repo.get_product_by_id(product_id)
             try:
                 product = product_service.get_product_by_id(product_id)
             except ProductNotFoundByIdError:
@@ -110,38 +109,17 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
             )
 
         # Case 2: manual search by entering a product's id
-        # The user enters the products id
-        # If GET just show the page
+        # The user enters the product's id
         if request.method != "POST":
-            return render_template(
-                view_product_page,
-                error      = error,
-                product    = product,
-                product_id = product_id
-            )
+            return render_template(view_product_page, product_id="")
 
         product_id = request.form.get("product_id")
 
         if not product_id:
-            error = "Please enter a products id"
-            return render_template(
-                view_product_page,
-                error      = error, 
-                product    = product,
-                product_id = product_id
-            )
+            return render_template(view_product_page)
 
-        product = prod_repo.get_product_by_id(product_id)
-
-        if product is None:
-            error = "No products found"
-
-        return render_template(
-            view_product_page,
-            error      = error, 
-            product    = product,
-            product_id = product_id
-        )
+        # retrieve product_id and redirect to Case 1 (to build ulr like: products/<product_id>)
+        return redirect(url_for("product.view_product", product_id=product_id))
 
 
     @login_required
