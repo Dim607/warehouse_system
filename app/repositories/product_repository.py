@@ -107,7 +107,7 @@ class ProductRepository:
         return Product.from_dict(result)
 
 
-    def sell_product(self, product_id: str, sell_quantity: int, profit: float) -> Product:
+    def sell_product(self, product_id: str, sell_quantity: int, profit: float) -> Optional[Product]:
         """
         Sell a product and update it in the database 
 
@@ -120,18 +120,17 @@ class ProductRepository:
             profit (float): The profit from selling `sell_quantity` items
 
         Returns:
-            Product: The updated product
+            Product | None: If the product was updated return the updated version,
+                else return None
 
         Raises:
-            ValueError: 
-                - If no  product was found with `product_id`
-                - If the product is missing required order_fields
-                (see Product.from_dict() for more details
+            ValueError: If the product is missing required attributes
+                (see Product.from_dict() for more details).
         """
         sell_result: dict = self.product_collection.find_one_and_update(
             {
                 "id": product_id,
-                # are there enough items to sell
+                # are there enough items to sell?
                 "quantity": {"$gte": sell_quantity}
             },
             {
@@ -142,6 +141,9 @@ class ProductRepository:
             },
             return_document=True,
         )
+
+        if sell_result is None:
+            return None
 
         return Product.from_dict(sell_result)
 

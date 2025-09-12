@@ -1,6 +1,6 @@
 from typing import List, Literal, Optional
 from pymongo.results import InsertManyResult, InsertOneResult
-from app.exceptions.exceptions import ProductDoesNotFitInUnit, ProductNotFoundByIdError, UnitNotFoundByIdError
+from app.exceptions.exceptions import InsufficientProductQuantity, ProductDoesNotFitInUnit, ProductNotFoundByIdError, UnitNotFoundByIdError
 from app.model.product import Product
 from app.model.unit import Unit
 from app.repositories.unit_repository import UnitRepository
@@ -468,22 +468,24 @@ class ProductService:
             Product: The updated product object after the sale.
 
         Raises:
-            ValueError: If
-                - The product does not exist.
-                - The quantity to sell exceeds the available stock.
-                - The repository fails to update the product.
+            ProductNotFoundByIdError: If the product does not exist.
+            InsufficientProductQuantity: If tried to sell more items
+                than what is available the database.
+            ValueError: If the product's record in the database is missing required attributes
+                (see ProductRepository.sell_product() for more details).
         """
         profit: float
         product: Optional[Product] = self.product_repository.get_product_by_id(product_id)
 
         if product is None:
-            raise ValueError(f"Product with id={product_id} does not exist.")
+            raise ProductNotFoundByIdError(f"Product with id={product_id} does not exist.")
 
         profit = product.calculate_profit(quantity_to_sell)
 
-        try:
-            updated_product = self.product_repository.sell_product(product_id, quantity_to_sell, profit)
-        except Exception as e:
-            raise ValueError(f"Could not sell product") from e
+        # This might throw value error
+        updated_product = self.product_repository.sell_product(product_id, quantity_to_sell, profit)
+
+        if updated_product is None:
+            raise InsufficientProductQuantity(product_id, str(quantity_to_sell))
 
         return updated_product

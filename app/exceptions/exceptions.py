@@ -19,10 +19,15 @@ class ProductNotFoundByIdError(Exception):
 
 
 class ProductDoesNotFitInUnit(Exception):
-    """ Raised when the given product does not fit in the given unit"""
+    """ Raised when the given product does not fit in the given unit. """
     def __init__(self, product_id: str, unit_id: str):
         super().__init__(f"Product with id={product_id} does not fit into unit with id={unit_id}")
 
+
+class InsufficientProductQuantity(Exception):
+    """ Raised when trying to sell more items than what is available the database. """
+    def __init__(self, product_id: str, quantity_to_sell: str):
+        super().__init__(f"Cannot sell {quantity_to_sell} items of product with id={product_id}.")
 
 # Unit exceptions
 class UnitNotFoundByIdError(Exception):
