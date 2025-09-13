@@ -9,7 +9,7 @@ from app.services.product_service import ProductService
 from app.utils.auth_utils import is_admin_logged_in, login_required, required_role
 
 
-def create_product_blueprint(prod_repo: ProductRepository, product_service: ProductService):
+def create_product_blueprint(product_service: ProductService):
     product_bp = Blueprint(PRODUCT_BP, __name__, template_folder="templates")
 
 

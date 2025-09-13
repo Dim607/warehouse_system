@@ -18,7 +18,6 @@ from app.services.user_service import UserService
 
 
 def create_server():
-    # server = Flask(__name__)
     server = CustomFlask(__name__)
 
     server.config["SERVER_HOST"]       = os.environ.get("SERVER_HOST", "localhost")
@@ -32,12 +31,12 @@ def create_server():
     server.secret_key = server.config["SERVER_SECRET_KEY"]
 
     # Initialize Mongodb clients
-    client                = MongoClient(server.config["MONGO_HOST"], server.config["MONGO_PORT"])
-    db                    = client[server.config["MONGO_DATABASE"]]
-    admin_collection      = db["admin"]
-    unit_collection       = db["units"]
-    product_collection    = db["products"]
-    user_collection       = db["users"]
+    client             = MongoClient(server.config["MONGO_HOST"], server.config["MONGO_PORT"])
+    db                 = client[server.config["MONGO_DATABASE"]]
+    admin_collection   = db["admin"]
+    unit_collection    = db["units"]
+    product_collection = db["products"]
+    user_collection    = db["users"]
 
     # Create indexes to avoid duplicates
     unit_collection.create_index("id", unique=True)
@@ -47,11 +46,11 @@ def create_server():
     """ TODO add indexes for product collection """
 
     # Attach to server
-    server.db                    = db
-    server.admin_collection      = admin_collection
-    server.unit_collection       = unit_collection
-    server.product_collection    = product_collection
-    server.user_collection       = user_collection
+    server.db                 = db
+    server.admin_collection   = admin_collection
+    server.unit_collection    = unit_collection
+    server.product_collection = product_collection
+    server.user_collection    = user_collection
 
     # Initialize repositories
     emp_repo = EmployeeRepository(server.user_collection)
@@ -63,13 +62,13 @@ def create_server():
 
     # Initialize services
     employee_service = EmployeeService(usr_repo, emp_repo, unt_repo)
-    user_service = UserService(usr_repo, unt_repo)
-    product_service = ProductService(prd_repo, unt_repo)
+    user_service     = UserService(usr_repo, unt_repo)
+    product_service  = ProductService(prd_repo, unt_repo)
 
     # Add blueprints for routes
     server.register_blueprint(create_auth_blueprint(user_service))
     server.register_blueprint(create_employee_blueprint(employee_service, user_service))
     server.register_blueprint(create_user_blueprint(user_service))
-    server.register_blueprint(create_product_blueprint(prd_repo, product_service))
+    server.register_blueprint(create_product_blueprint(product_service))
 
     return server
