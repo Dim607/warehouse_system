@@ -16,23 +16,37 @@ class ProductService:
         self.unit_repository = unit_repository
 
 
-    def get_product_by_id(self, id: str) -> Product:
+    def get_product_by_id(self, id: str, unit_id: Optional[str] = None) -> Product:
         """
         Get a Product instance from the DB by ID.
 
+        Search the unit identified by `unit_id` for the product
+        identified by `product_id`.
+
         Args:
             id (str): The ID of the product to retrieve.
+            unit_id (str | None): The ID of the unit where the product is stored.
+                If `unit_id` is None search all units.
 
         Returns:
             product (Product): A Product object with the information
-            of the employee identified by `id`.
+            of the product identified by `product_id`.
 
         Raises:
+            UnitNotFoundByIdError: If `unit_id` is specified and no unit exists
+                with that ID.
             ProductNotFoundByIdError: If the product does not exist.
             ValueError: If the product record is missing required attributes
                 (see ProductRepository.get_product_by_id()).
         """
-        product: Optional[Product] = self.product_repository.get_product_by_id(id)
+        product: Optional[Product]
+
+        if unit_id is None:
+            product = self.product_repository.get_product_by_id(id)
+        else:
+            if self.unit_repository.get_unit_by_id(unit_id) is None:
+                raise UnitNotFoundByIdError(unit_id)
+            product = self.product_repository.get_product_by_id(id, unit_id) 
 
         if product is None:
             raise ProductNotFoundByIdError(id)
@@ -52,7 +66,6 @@ class ProductService:
                 (see ProductRepository.from_dict()).
         """
         return self.product_repository.get_products()
-
 
 
     def get_products_from_unit(self, unit_id: str) -> List[Product]:
@@ -451,6 +464,7 @@ class ProductService:
         self,
         product_id: str,
         quantity_to_sell: int,
+        unit_id: Optional[str] = None
     ) -> Product:
         """
         Sell a product by validating and updating it.
@@ -463,6 +477,8 @@ class ProductService:
         Args:
             product_id (str): The ID of the product to sell.
             quantity_to_sell (int): The number of items to sell.
+            unit_id (str): The id of the unit to were the product is stored.
+                If None the method will try to find the product in all units.
 
         Returns:
             Product: The updated product object after the sale.
@@ -487,7 +503,14 @@ class ProductService:
         profit = product.calculate_profit(quantity_to_sell)
 
         # This might throw value error
-        updated_product = self.product_repository.sell_product(product_id, quantity_to_sell, profit)
+        if unit_id is None:
+            updated_product = self.product_repository.sell_product(
+                product_id, quantity_to_sell, profit
+            )
+        else:
+            updated_product = self.product_repository.sell_products_from_unit(
+                product_id, quantity_to_sell, profit, unit_id
+            )
 
         if updated_product is None:
             raise InsufficientProductQuantity(product_id, str(quantity_to_sell))

@@ -11,13 +11,16 @@ class ProductRepository:
     def __init__(self, product_collection: Collection):
         self.product_collection = product_collection
 
-
-    def get_product_by_id(self, id: str) -> Product | None:
+    def get_product_by_id(
+        self, id: str, unit_id: Optional[str] = None
+    ) -> Product | None:
         """
         Get a Product instance from the DB by ID.
 
         Args:
             id (str): The ID of the product to retrieve.
+            unit_id (str | None): The id of the unit where the product is stored.
+                If None the method looks for products in all units.
 
         Returns:
             product (Product): A Product object with the information
@@ -27,7 +30,10 @@ class ProductRepository:
             ValueError: If the product record is missing required attributes
                 (see Product.from_dict()).
         """
-        result = self.product_collection.find_one({"id": id})
+        query = {"id": id}
+        if unit_id is not None:
+            query["unit_id"] = unit_id
+        result = self.product_collection.find_one(query)
 
         if result is None:
             return None
@@ -107,6 +113,56 @@ class ProductRepository:
         return Product.from_dict(result)
 
 
+    def _sell_product(self, product_id: str, unit_id: Optional[str], sell_quantity: int, profit: float):
+        """
+        Sell a product and update it in the database 
+
+        This method decreases the product's quantity by `items_to_sell`
+        and increases its `unit_gain` by the given `profit`.
+
+        Args:
+            product_id (str): The id of the product to sell.
+            unit_id (str | None): The unit in which the product belongs.
+                If none the method looks at all units.
+            sell_quantity (int): The quantity of items of the product to be sold.
+            profit (float): The profit from selling `sell_quantity` items
+
+        Returns:
+            Product | None: If the product was updated return the updated version,
+                else return None
+
+        Raises:
+            ValueError: If the product is missing required attributes
+                (see Product.from_dict() for more details).
+        """
+
+        filter = {
+            "id": product_id,
+            # are there enough items to sell?
+            "quantity": {"$gte": sell_quantity},
+        }
+        if unit_id is not None:
+            filter["unit_id"] = unit_id
+
+        update = {
+            "$inc": {
+                "quantity": -sell_quantity,  # subtract sold quantity
+                "unit_gain": profit,
+            }
+        }
+
+        sell_result= self.product_collection.find_one_and_update(
+            filter,
+            update,
+            return_document=True,
+        )
+
+        if sell_result is None:
+            return None
+
+        return Product.from_dict(sell_result)
+
+
     def sell_product(self, product_id: str, sell_quantity: int, profit: float) -> Optional[Product]:
         """
         Sell a product and update it in the database 
@@ -125,27 +181,33 @@ class ProductRepository:
 
         Raises:
             ValueError: If the product is missing required attributes
-                (see Product.from_dict() for more details).
         """
-        sell_result: dict = self.product_collection.find_one_and_update(
-            {
-                "id": product_id,
-                # are there enough items to sell?
-                "quantity": {"$gte": sell_quantity}
-            },
-            {
-                "$inc": {
-                    "quantity": -sell_quantity,  # subtract sold quantity
-                    "unit_gain": profit,
-                }
-            },
-            return_document=True,
-        )
+        return self._sell_product(product_id, None, sell_quantity, profit)
 
-        if sell_result is None:
-            return None
 
-        return Product.from_dict(sell_result)
+    def sell_products_from_unit(self, product_id: str, sell_quantity: int, profit: float, unit_id: str):
+        """
+        Sell a product and update it in the database 
+
+        This method decreases the product's quantity by `items_to_sell`
+        and increases its `unit_gain` by the given `profit`.
+
+        Args:
+            product_id (str): The id of the product to sell.
+            unit_id (str | None): The unit in which the product belongs.
+                If none the method looks at all units.
+            sell_quantity (int): The quantity of items of the product to be sold.
+            profit (float): The profit from selling `sell_quantity` items
+
+        Returns:
+            Product | None: If the product was updated return the updated version,
+                else return None
+
+        Raises:
+            ValueError: If the product is missing required attributes
+        """
+        return self._sell_product(product_id, unit_id, sell_quantity, profit)
+
 
 
     def insert_product(self, product: Product) -> InsertOneResult:

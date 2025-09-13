@@ -51,6 +51,9 @@
           <td>{{ product.unit_gain}}</td>
         </tr>
     </table>
+    <a href="{{ url_for('product.sell_product', product_id=product.id) }}">Sell product</a>
+
+    <br>
     {% endif %}
 
     <a href="{{ url_for('user.dashboard') }}">Return to dashboard </a>

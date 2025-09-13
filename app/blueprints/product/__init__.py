@@ -1,7 +1,8 @@
-from typing import List, Optional
+import re
+from typing import List, Optional, Tuple
 from flask import Blueprint, redirect, request, render_template, session, url_for
 from app.blueprints.names import PRODUCT_BP
-from app.exceptions.exceptions import ProductNotFoundByIdError, UnitNotFoundByIdError
+from app.exceptions.exceptions import InsufficientProductQuantity, ProductNotFoundByIdError, UnitNotFoundByIdError
 from app.model.product import Product
 from app.repositories.product_repository import ProductRepository
 from app.services.product_service import ProductService
@@ -20,7 +21,6 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
                 products = product_service.get_products()
             else:
                 products = product_service.get_products_from_unit(session["unit_id"])
-
         except UnitNotFoundByIdError:
             return render_template(view_products_page, error="Could not find your unit.")
         except ValueError:
@@ -120,10 +120,98 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
         return redirect(url_for("product.view_product", product_id=product_id))
 
 
+    def _get_product_or_error(product_id: str, unit_id: Optional[str] = None) -> Tuple[Optional[Product], Optional[str]]:
+        product: Optional[Product] = None
+        error: Optional[str]       = None
+        try:
+            product = product_service.get_product_by_id(product_id, unit_id)
+        except ProductNotFoundByIdError:
+            error="Could not find product."
+        except ValueError:
+            error="The product's record in the database is missing required attributes."
+
+        return (product, error)
+
+
+    def _sell_product_or_error(product_id:str, quantity_to_sell: float) -> Tuple[Optional[Product], Optional[str]]:
+        product: Optional[Product] = None
+        error: Optional[str]       = None
+        try:
+            product = product_service.sell_product(product_id, int(quantity_to_sell))
+        except ProductNotFoundByIdError:
+            error="Could not find product."
+        except InsufficientProductQuantity:
+            error="There are not enough items of the product in stock."
+        except ValueError:
+            error=(
+                "The product's record in the database is missing required attributes"
+                "or the quantity to sell is not a number."
+            )
+
+        return product, error
+
+
+    @product_bp.route("/products/sell", methods=["GET", "POST"])
+    # need POST to build ulr, otherwise it would be /products/sell?product_id=<value> when manual searching
+    @product_bp.route("/products/<product_id>/sell", methods=["GET", "POST"])
     @login_required
     @required_role("employee")
-    def sell_product():
-        pass
+    def sell_product(product_id: Optional[str] = None):
+        products: List[Optional[Product]]        = []
+        error: Optional[str]                     = None
+        product_to_sell: Optional[Product]       = None
+        product_after_sell: Optional[Product]    = None
+        unit_id: Optional[str]                   = session.get("unit_id")
+        sell_product_page                        = "product/sell_product.html"
+
+        if request.method == "GET":
+            # Case 1: Came here from view_product:
+            if product_id:
+                # get old product and show it.
+                product_to_sell, error = _get_product_or_error(product_id, unit_id)
+                if error:
+                    return render_template(
+                        sell_product_page, product_id=product_id, error=error
+                    )
+                return render_template(
+                    sell_product_page, product_id=product_id, products=[product_to_sell]
+                )
+            return render_template(sell_product_page, product_id="")
+
+        # Case 2: Came here after clicking sell product in dashboard:
+        # POST is used here
+        product_id       = request.form.get("product_id")
+        quantity_to_sell = request.form.get("product_quantity_sell")
+
+        if not product_id:
+            return render_template(sell_product_page)
+
+        # retrieve product from db
+        product_to_sell, error = _get_product_or_error(product_id, unit_id)
+        if error:
+            return render_template(
+                sell_product_page, product_id=product_id, error=error
+            )
+        products.append(product_to_sell)
+
+        # show product and its id
+        if not quantity_to_sell:
+            return render_template(
+                sell_product_page, product_id=product_id, products=products
+            )
+
+        # sell product
+        product_after_sell, error = _sell_product_or_error(product_id, int(quantity_to_sell))
+        if error:
+            return render_template(
+                sell_product_page, product_id=product_id, products=products, error=error
+            )
+        products.append(product_after_sell)
+
+        # show product before and after selling
+        return render_template(
+            sell_product_page, product_id=product_id, products=products
+        )
 
 
     return product_bp
