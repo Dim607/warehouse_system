@@ -13,8 +13,9 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
     product_bp = Blueprint(PRODUCT_BP, __name__, template_folder="templates")
 
 
-    def _view_products(view_products_page: str):
+    def _view_products(view_products_page: str) -> Tuple[Optional[List[Product]], Optional[str]]:
         products: Optional[List]
+        error: Optional[str] = None
 
         try:
             if is_admin_logged_in():
@@ -22,28 +23,60 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
             else:
                 products = product_service.get_products_from_unit(session["unit_id"])
         except UnitNotFoundByIdError:
-            return render_template(view_products_page, error="Could not find your unit.")
+            error = "Could not find your unit."
         except ValueError:
-            return render_template(
-                view_products_page,
-                error="The product's record in the database is missing required attributes.",
+            error = "The product's record in the database is missing required attributes."
+
+        return [product.to_dict() for product in products], error
+
+
+    def _get_product_or_error(product_id: str, unit_id: Optional[str] = None) -> Tuple[Optional[Product], Optional[str]]:
+        product: Optional[Product] = None
+        error: Optional[str]       = None
+        try:
+            product = product_service.get_product_by_id(product_id, unit_id)
+        except ProductNotFoundByIdError:
+            error="Could not find product."
+        except ValueError:
+            error="The product's record in the database is missing required attributes."
+
+        return product, error
+
+
+    def _sell_product_or_error(product_id:str, quantity_to_sell: float) -> Tuple[Optional[Product], Optional[str]]:
+        product: Optional[Product] = None
+        error: Optional[str]       = None
+        try:
+            product = product_service.sell_product(product_id, int(quantity_to_sell))
+        except ProductNotFoundByIdError:
+            error="Could not find product."
+        except InsufficientProductQuantity:
+            error="There are not enough items of the product in stock."
+        except ValueError:
+            error=(
+                "The product's record in the database is missing required attributes"
+                "or the quantity to sell is not a number."
             )
 
-        return render_template(view_products_page, products=[product.to_dict() for product in products])
+        return product, error
 
 
     @product_bp.route("/search-products", methods=["GET", "POST"])
     @login_required
     @required_role("employee")
     def search_products():
-        error: str                     = ""
+        error: Optional[str]           = ""
         products: List[Product]        = []
         start_index_int: Optional[int] = None
         end_index_int: Optional[int]   = None
         search_products_page: str      = "product/search_products.html"
 
         if request.method != "POST":
-            _view_products(search_products_page)
+            products_list, error = _view_products(search_products_page)
+            if error:
+                return render_template(search_products_page, error=error)
+
+            return render_template(search_products_page, products=products_list)
 
         # if the field is falsy (here it can be empty string "") assign None
         # 0 can be falsy, but this is not a problem because if 0 is entered in form
@@ -86,22 +119,13 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
     def view_product(product_id: Optional[str] = None):
         product: Optional[Product] = None
         view_product_page: str     = "product/view_product.html"
+        unit_id: Optional[str]     = session.get("unit_id")
 
         # Case 1: Came here after viewing all products and choosing one
         if product_id:
-            try:
-                product = product_service.get_product_by_id(product_id)
-            except ProductNotFoundByIdError:
-                return render_template(
-                    view_product_page,
-                    error="Could not find product.",
-                )
-            except ValueError:
-                return render_template(
-                    view_product_page,
-                    error="The product's record in the database is missing required attributes.",
-                )
-
+            product, error = _get_product_or_error(product_id, unit_id)
+            if error:
+                return render_template(view_product_page, error=error)
             return render_template(
                 view_product_page, product=product, product_id=product_id
             )
@@ -118,37 +142,6 @@ def create_product_blueprint(prod_repo: ProductRepository, product_service: Prod
 
         # retrieve product_id and redirect to Case 1 (to build ulr like: products/<product_id>)
         return redirect(url_for("product.view_product", product_id=product_id))
-
-
-    def _get_product_or_error(product_id: str, unit_id: Optional[str] = None) -> Tuple[Optional[Product], Optional[str]]:
-        product: Optional[Product] = None
-        error: Optional[str]       = None
-        try:
-            product = product_service.get_product_by_id(product_id, unit_id)
-        except ProductNotFoundByIdError:
-            error="Could not find product."
-        except ValueError:
-            error="The product's record in the database is missing required attributes."
-
-        return (product, error)
-
-
-    def _sell_product_or_error(product_id:str, quantity_to_sell: float) -> Tuple[Optional[Product], Optional[str]]:
-        product: Optional[Product] = None
-        error: Optional[str]       = None
-        try:
-            product = product_service.sell_product(product_id, int(quantity_to_sell))
-        except ProductNotFoundByIdError:
-            error="Could not find product."
-        except InsufficientProductQuantity:
-            error="There are not enough items of the product in stock."
-        except ValueError:
-            error=(
-                "The product's record in the database is missing required attributes"
-                "or the quantity to sell is not a number."
-            )
-
-        return product, error
 
 
     @product_bp.route("/products/sell", methods=["GET", "POST"])
