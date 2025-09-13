@@ -25,7 +25,11 @@ class ProductDoesNotFitInUnit(Exception):
 
 
 class InsufficientProductQuantity(Exception):
-    """ Raised when trying to sell more items than what is available the database. """
+    """
+    Raised when:
+        - trying to sell more items than what is available the database.
+        - `quantity_to_sell` is negative
+    """
     def __init__(self, product_id: str, quantity_to_sell: str):
         super().__init__(f"Cannot sell {quantity_to_sell} items of product with id={product_id}.")
 

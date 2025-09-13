@@ -469,8 +469,9 @@ class ProductService:
 
         Raises:
             ProductNotFoundByIdError: If the product does not exist.
-            InsufficientProductQuantity: If tried to sell more items
-                than what is available the database.
+            InsufficientProductQuantity:
+                - If trying to sell more items than what is available the database.
+                - If `quantity_to_sell` is negative.
             ValueError: If the product's record in the database is missing required attributes
                 (see ProductRepository.sell_product() for more details).
         """
@@ -479,6 +480,9 @@ class ProductService:
 
         if product is None:
             raise ProductNotFoundByIdError(f"Product with id={product_id} does not exist.")
+
+        if quantity_to_sell < 0:
+            raise InsufficientProductQuantity(product_id, str(quantity_to_sell))
 
         profit = product.calculate_profit(quantity_to_sell)
 
