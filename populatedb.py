@@ -74,10 +74,9 @@ def add_units(unit_repo: UnitRepository):
         unit = {}
         for field in values.keys():
             unit[field] = values[field][i]
-            
-        unit_list.append(Unit.from_dict(unit))
+        unit_list.append(unit)
 
-    result = unit_repo.insert_units(unit_list)
+    result = unit_repo.insert_units([Unit.from_dict(u) for u in unit_list])
 
     print(f"Inserted {len(result.inserted_ids)} units")
 
@@ -103,10 +102,10 @@ def add_products(prod_repo: ProductRepository):
     products_to_add = len(values["name"])
 
     for i in range(products_to_add):
-        unit = {}
+        product = {}
         for field in values.keys():
-            unit[field] = values[field][i]
-        prod_list.append(unit)
+            product[field] = values[field][i]
+        prod_list.append(product)
 
 
     result = prod_repo.insert_products([Product.from_dict(p) for p in prod_list])
