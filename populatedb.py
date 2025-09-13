@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from pymongo.database import Collection
 from app.model.employee import Employee
 from app.model.product import Product
+from app.model.unit import Unit
 from app.repositories.employee_repository import EmployeeRepository
 from app.repositories.product_repository import ProductRepository
 from app.repositories.supervisor_repository import SupervisorRepository
@@ -73,7 +74,8 @@ def add_units(unit_repo: UnitRepository):
         unit = {}
         for field in values.keys():
             unit[field] = values[field][i]
-        unit_list.append(unit)
+            
+        unit_list.append(Unit.from_dict(unit))
 
     result = unit_repo.insert_units(unit_list)
 

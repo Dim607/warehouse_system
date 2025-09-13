@@ -176,6 +176,6 @@ class User:
             password  = str(data["password"]),
             unit_id   = str(data["unit_id"]),
             unit_name = data.get("unit_name"),
-            role      = str(data["role"])
+            role      = data.get("role")
         )
         return user
