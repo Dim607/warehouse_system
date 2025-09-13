@@ -13,10 +13,9 @@ def create_product_blueprint(product_service: ProductService):
     product_bp = Blueprint(PRODUCT_BP, __name__, template_folder="templates")
 
 
-    def _view_products(view_products_page: str) -> Tuple[Optional[List[Product]], Optional[str]]:
-        products: Optional[List]
+    def _view_products() -> Tuple[Optional[List[Product]], Optional[str]]:
+        products: Optional[List[Product]]
         error: Optional[str] = None
-
         try:
             if is_admin_logged_in():
                 products = product_service.get_products()
@@ -27,7 +26,7 @@ def create_product_blueprint(product_service: ProductService):
         except ValueError:
             error = "The product's record in the database is missing required attributes."
 
-        return [product.to_dict() for product in products], error
+        return products, error
 
 
     def _get_product_or_error(product_id: str, unit_id: Optional[str] = None) -> Tuple[Optional[Product], Optional[str]]:
@@ -72,7 +71,7 @@ def create_product_blueprint(product_service: ProductService):
         search_products_page: str      = "product/search_products.html"
 
         if request.method != "POST":
-            products_list, error = _view_products(search_products_page)
+            products_list, error = _view_products()
             if error:
                 return render_template(search_products_page, error=error)
 
