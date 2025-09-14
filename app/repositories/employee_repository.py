@@ -23,12 +23,13 @@ class EmployeeRepository:
 
         Returns:
             Employee | None:
-            - An Employee object if found. Note that `unit_name` is not stored in the database.
+            - An Employee object if found.
+              Note that `unit_name` is not stored in the database.
             - None if no employee with the given ID exists.
 
         Raises:
             ValueError: If the Database record is missing required attributes
-            (see Employee.from_persistence_dict() for details on the required attributes).
+            (see User.from_persistence_dict() for details on the required attributes).
         """
         query = {"id": id, "role": "employee"}
         result = self.user_collection.find_one(query)
@@ -52,12 +53,13 @@ class EmployeeRepository:
 
         Returns:
             Employee | None:
-            - An Employee object if found. Note that `unit_name` is not stored in the database.
+            - An Employee object if found.
+              Note that `unit_name` is not stored in the database.
             - None if no employee with the given ID exists.
 
         Raises:
             ValueError: If the Database record is missing required attributes
-            (see Employee.from_persistence_dict() for details on the required attributes).
+            (see User.from_persistence_dict() for details on the required attributes).
         """
 
         query = {
@@ -76,7 +78,7 @@ class EmployeeRepository:
 
     def insert_employee(self, employee: Employee) -> InsertOneResult:
         """
-        Inserts an employee to the database
+        Inserts an employee to the database.
 
         Removes the field `unit_name` from `employee`,
         since only the `unit_id` is needed.
@@ -92,10 +94,10 @@ class EmployeeRepository:
 
     def insert_employees(self, employees: List[Employee]) -> InsertManyResult:
         """
-        Inserts a employees to the database
+        Inserts employees to the database.
 
         Removes the field `unit_name` from each employee in `employees`,
-        only the `unit_id` is needed
+        only the `unit_id` is needed.
 
         Args:
             employees (List[Employee]): A list with the employees to insert.
