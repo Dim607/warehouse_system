@@ -1,7 +1,9 @@
+from typing import List
 from pymongo import MongoClient
 from pymongo.database import Collection
 from app.model.employee import Employee
 from app.model.product import Product
+from app.model.supervisor import Supervisor
 from app.model.unit import Unit
 from app.repositories.employee_repository import EmployeeRepository
 from app.repositories.product_repository import ProductRepository
@@ -12,14 +14,12 @@ from app.repositories.unit_repository import UnitRepository
 def add_employees(emp_repo: EmployeeRepository, user_collection: Collection):
     employees_list = []
 
-    # fields = ["id", "name", "surname", "username", "password", "unit_id", "unit_name"]
     values = {
         "name": ["John", "Mary", "Jim", "Pam", "Andrew", "Peter"],
         "surname": ["Smith", "Jacobs", "Halpert", "Wesley", "Mathews", "Parker"],
         "username": ["js", "mj", "jh", "pw", 'am', "pp"],
         "password": ["12","12","12","12","12", "12"],
         "unit_id": ["u1", "u1", "u2", "u2", "u3", "u3"],
-        # "unit_name": ["unit1", "unit1", "unit2", "unit2", "unit3", "unit3"],
     }
     employees_to_add = len(values["name"])
 
@@ -27,7 +27,6 @@ def add_employees(emp_repo: EmployeeRepository, user_collection: Collection):
         employee = {}
         for field in values.keys():
             employee[field] = values[field][i]
-        # print(employee)
         employees_list.append(Employee.from_persistence_dict(employee))
 
     result = emp_repo.insert_employees(employees_list)
@@ -52,7 +51,7 @@ def add_supervisors(sup_repo: SupervisorRepository):
         supervisor = {}
         for field in values.keys():
             supervisor[field] = values[field][i]
-        supervisor_list.append(supervisor)
+        supervisor_list.append(Supervisor.from_persistence_dict(supervisor))
 
     result = sup_repo.insert_supervisors(supervisor_list)
 
@@ -74,9 +73,9 @@ def add_units(unit_repo: UnitRepository):
         unit = {}
         for field in values.keys():
             unit[field] = values[field][i]
-        unit_list.append(unit)
+        unit_list.append(Unit.from_dict(unit))
 
-    result = unit_repo.insert_units([Unit.from_dict(u) for u in unit_list])
+    result = unit_repo.insert_units(unit_list)
 
     print(f"Inserted {len(result.inserted_ids)} units")
 
@@ -105,10 +104,10 @@ def add_products(prod_repo: ProductRepository):
         product = {}
         for field in values.keys():
             product[field] = values[field][i]
-        prod_list.append(product)
+        prod_list.append(Product.from_dict(product))
 
 
-    result = prod_repo.insert_products([Product.from_dict(p) for p in prod_list])
+    result = prod_repo.insert_products(prod_list)
 
     print(f"Inserted {len(result.inserted_ids)} products")
 
