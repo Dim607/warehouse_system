@@ -113,7 +113,7 @@ class EmployeeService():
 
         This method:
         1) Retrieves the employee and the employee's unit records from the repository.
-        3) Enriches the employee object by setting its `unit_name`.
+        2) Enriches the employee object by setting its `unit_name`.
 
         Args:
             username (str): The `username` of the employee.
