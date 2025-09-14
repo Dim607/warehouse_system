@@ -15,7 +15,7 @@ class Supervisor(Employee):
         username: str,
         password: str,
         unit_id: str,
-        unit_name: str,
+        unit_name: Optional[str],
         role: Optional[str] = None
     ):
         super().__init__(
