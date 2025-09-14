@@ -98,10 +98,10 @@ class EmployeeRepository:
         only the `unit_id` is needed
 
         Args:
-            employees (List[Employee]): A list with the employees to insert
+            employees (List[Employee]): A list with the employees to insert.
 
         Returns:
-            pymongo.results.InsertManyResult: The result of the insertion
+            pymongo.results.InsertManyResult: The result of the insertion.
         """
         return self.user_collection.insert_many([e.to_percistance_dict() for e in employees])
 
