@@ -42,10 +42,16 @@ class EmployeeService():
             InsertOneResult: The result of the insertion.
 
         Raises:
-            ValueError:
-            - If the employee record is missing required attributes
+            UnitNotFoundByIdError: If no unit with the given `unit_id` exists.
+            ValueError: If the employee record is missing required attributes
             (see EmployeeRepository.insert_employee()).
         """
+
+        unit: Optional[Unit] = self.unit_repository.get_unit_by_id(unit_id)
+
+        if unit is None:
+            raise UnitNotFoundByIdError(unit_id)
+
         employee = Employee(
             id        = None,
             name      = name,
