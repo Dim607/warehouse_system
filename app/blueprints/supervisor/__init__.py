@@ -1,5 +1,6 @@
 from typing import Optional
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from pymongo.errors import DuplicateKeyError
 from app.blueprints.names import SUPERVISOR_BP
 from app.exceptions.exceptions import UnitNotFoundByIdError
 from app.services.employee_service import EmployeeService
@@ -53,10 +54,11 @@ def create_supervisor_blueprint(
                 surname=surname,
                 username=username,
             )
-            """ 
-            TODO handler Duoplpliacscjkeaeraes
-            """
-
+        except DuplicateKeyError:
+            return render_template(
+                create_employee_page,
+                error="A user with the same username already exists in the unit.",
+            )
         except ValueError:
             return render_template(
                 create_employee_page,
