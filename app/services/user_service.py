@@ -55,7 +55,7 @@ class UserService:
         return self._get_user_subclass(user)
 
 
-    def get_user(self, username: str, password: str, unit_id: str) -> User:
+    def get_user(self, username: str, password: str, unit_id: Optional[str] = None) -> User:
         """
         Get a User instance from the DB by their credentials.
 
@@ -67,7 +67,8 @@ class UserService:
         Args:
             username (str): The `username` of the user.
             password (str): The `password` of the user.
-            unit_id (str): The `id` of the unit the user is assigned to.
+            unit_id (str | None): The `id` of the unit the user is assigned to.
+                If None then the user is not assigned to any unit (ex Admin).
 
         Returns:
             user (User): A User object with the information
@@ -83,21 +84,23 @@ class UserService:
         """
 
         user = self.user_repository.get_user(username, password, unit_id)
-        unit = self.unit_repository.get_unit_by_id(unit_id)
 
         if user is None:
             raise UserNotFoundByCredentialsError(username, unit_id)
-        if unit is None:
-            raise UnitNotFoundByIdError(unit_id)
 
-        user.unit_name = unit.name
+        if unit_id is not None:
+            unit = self.unit_repository.get_unit_by_id(unit_id)
+
+            if unit is None:
+                raise UnitNotFoundByIdError(unit_id)
+
+            user.unit_name = unit.name
 
         return self._get_user_subclass(user)
 
 
     def change_password(self, id: str, password: str) -> bool:
         return self.user_repository.change_password(id, password)
-
 
 
     def _get_user_subclass(self, user: User) -> User:

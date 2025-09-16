@@ -1,3 +1,4 @@
+from typing import Optional
 from pymongo.database import Collection
 from app.model.employee import Employee
 from app.model.supervisor import Supervisor
@@ -5,9 +6,6 @@ from app.model.admin import Admin
 from app.model.user import User
 
 
-"""
-Avoid Singleton pattern, use Dependency Injection
-"""
 class UserRepository:
     user_collection: Collection
 
@@ -40,7 +38,7 @@ class UserRepository:
         return User.from_persistence_dict(result)
 
 
-    def get_user(self, username: str, password: str, unit_id: str) -> User | None:
+    def get_user(self, username: str, password: str, unit_id: Optional[str]) -> User | None:
         """
         Retrieve a User instance from the DB using their credentials.
 
@@ -49,7 +47,8 @@ class UserRepository:
         Args:
             username (str): The `username` of the employee.
             password (str): The `password` of the employee.
-            unit_id (str): The `id` of the unit the employee is assigned to.
+            unit_id (str | None): The `id` of the unit the employee is assigned to.
+                If None then the user is not assigned to any unit (ex Admin).
 
         Returns:
             User | None:
@@ -63,8 +62,10 @@ class UserRepository:
         query = {
             "username": username,
             "password": password,
-            "unit_id":  unit_id,
         }
+
+        if unit_id is not None:
+            query["unit_id"] = unit_id
 
         result = self.user_collection.find_one(query)
 
