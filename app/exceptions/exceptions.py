@@ -1,3 +1,6 @@
+from typing import Optional
+
+
 # User exceptions
 class UserNotFoundByIdError(Exception):
     """ Raised when a user cannot be found by their id. """
@@ -7,8 +10,11 @@ class UserNotFoundByIdError(Exception):
 
 class UserNotFoundByCredentialsError(Exception):
     """ Raised when a user cannot be found by their credentials. """
-    def __init__(self, username: str, unit_id: str):
-        super().__init__(f"User with username={username} in unit with id={unit_id} was not found.")
+    def __init__(self, username: str, unit_id: Optional[str] = None):
+        error: str = f"User with username={username} in unit with id={unit_id} was not found."
+        if unit_id is not None:
+            error = f"User with username={username} was not found."
+        super().__init__(error)
 
 
 # Product exceptions
