@@ -55,7 +55,7 @@ class EmployeeRepository:
             Employee | None:
             - An Employee object if found.
               Note that `unit_name` is not stored in the database.
-            - None if no employee with the given ID exists.
+            - None if no employee with the given credentials exists.
 
         Raises:
             ValueError: If the Database record is missing required attributes
