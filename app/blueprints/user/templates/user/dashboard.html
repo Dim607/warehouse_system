@@ -35,6 +35,11 @@
     {% endif %}
 
     {% if role in ["supervisor", "admin"] %}
+      <tr>
+        <td>
+          <a href="{{ url_for('supervisor.create_employee') }}">Create employee account</a>
+        </td>
+      </tr>
     {% endif %}
 
     {% if role in ["admin"] %}
