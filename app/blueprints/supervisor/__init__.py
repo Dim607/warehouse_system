@@ -53,6 +53,10 @@ def create_supervisor_blueprint(
                 surname=surname,
                 username=username,
             )
+            """ 
+            TODO handler Duoplpliacscjkeaeraes
+            """
+
         except ValueError:
             return render_template(
                 create_employee_page,

@@ -42,6 +42,8 @@ class EmployeeService():
             InsertOneResult: The result of the insertion.
 
         Raises:
+            DuplicateKeyError: If an employee with the same username
+                already exists in the unit (the pair username unit_id must be unique).
             UnitNotFoundByIdError: If no unit with the given `unit_id` exists.
             ValueError: If the employee record is missing required attributes
             (see EmployeeRepository.insert_employee()).
@@ -62,11 +64,6 @@ class EmployeeService():
             unit_name = None
         )
         return self.employee_repository.insert_employee(employee)
-
-
-    # maybe do not implement
-    def insert_employees(self):
-        pass
 
 
     def get_employee_by_id(self, id: str) -> Employee:
