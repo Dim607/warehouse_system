@@ -28,7 +28,7 @@ def create_auth_blueprint(user_service: UserService) -> Blueprint:
         # username = request.form["username"]
         # password = request.form["password"]
         # unit_id  = request.form["unit_id"]
-        username = "js"
+        username = "bw"
         password = "12"
         unit_id = "u1"
 
