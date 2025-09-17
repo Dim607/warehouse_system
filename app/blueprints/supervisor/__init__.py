@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from pymongo.errors import DuplicateKeyError
 from app.blueprints.names import SUPERVISOR_BP
@@ -15,6 +15,27 @@ def create_supervisor_blueprint(
     user_service: UserService
 ) -> Blueprint:
     supervisor_bp = Blueprint(SUPERVISOR_BP, __name__, template_folder="templates")
+
+    def _try_insert_employee(
+        name: str,
+        surname: str,
+        username: str,
+        password: str,
+        unit_id: str
+    ) -> Optional[str]:
+        error: Optional[str] = None
+        try: 
+            insert_result = emp_service.insert_employee(
+                name, surname, username, password, unit_id
+            )
+        except UnitNotFoundByIdError:
+            error="Could not find your unit."
+        except DuplicateKeyError:
+            error="A user with the same username already exists in the unit."
+        except ValueError:
+            error="The user's record in the database is missing required attributes."
+        return error
+
 
     @supervisor_bp.route("/employee/create", methods=["GET", "POST"])
     @login_required
@@ -42,27 +63,15 @@ def create_supervisor_blueprint(
                 username=username,
             )
 
-        try: 
-            insert_result = emp_service.insert_employee(
-                name, surname, username, password, unit_id
-            )
-        except UnitNotFoundByIdError:
+        error = _try_insert_employee(name, surname, username, password, unit_id)
+
+        if error is not None:
             return render_template(
                 create_employee_page,
-                error="Could not find your unit.",
+                error=error,
                 name=name,
                 surname=surname,
                 username=username,
-            )
-        except DuplicateKeyError:
-            return render_template(
-                create_employee_page,
-                error="A user with the same username already exists in the unit.",
-            )
-        except ValueError:
-            return render_template(
-                create_employee_page,
-                error="The user's record in the database is missing required attributes.",
             )
 
         flash("Employee created successfully.", "success")
