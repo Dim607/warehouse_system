@@ -177,3 +177,35 @@ class EmployeeService():
             employee.unit_name = unit.name
 
         return employees
+
+    def delete_employee_by_id(
+        self, employee_id: str, unit_id: Optional[str] = None
+    ) -> None:
+        """
+        Deletes an employee from the Database.
+
+        Args:
+            employee_id (str): The id of the employee to delete.
+            unit_id (str | None): The id of the unit the employee belongs to.
+                If None search all units are searched.
+
+        Returns:
+            DeleteResult: The result of the deletion.
+
+        Raises:
+            UserNotFoundByCredentialsError: If the employee does not exist.
+            UnitNotFoundByIdError: If the unit does not exist.
+        """
+
+        unit: Optional[Unit]
+
+        if unit_id is not None:
+            unit = self.unit_repository.get_unit_by_id(unit_id)
+
+            if unit is None:
+                raise UnitNotFoundByIdError(unit_id)
+
+        result = self.employee_repository.delete_employee_by_id(employee_id, unit_id)
+
+        if not result.acknowledged:
+            raise UserNotFoundByIdError(employee_id)

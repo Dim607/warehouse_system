@@ -1,6 +1,6 @@
 from typing import List, Optional
 from pymongo.database import Collection
-from pymongo.results import InsertManyResult, InsertOneResult
+from pymongo.results import DeleteResult, InsertManyResult, InsertOneResult
 from app.model.employee import Employee
 
 
@@ -136,4 +136,24 @@ class EmployeeRepository:
         """
         return self.user_collection.insert_many([e.to_percistance_dict() for e in employees])
 
+
+    def delete_employee_by_id(self, employee_id: str, unit_id: Optional[str] = None) -> DeleteResult:
+        """
+        Deletes an employee from the Database.
+
+        Args:
+            employee_id (str): The id of the employee to delete.
+            unit_id (str | None): The id of the unit the employee belongs to.
+                If None search all units are searched.
+
+        Returns:
+            DeleteResult: The result of the deletion.
+        """
+
+        query = {"id": employee_id, "role": "employee"}
+
+        if unit_id is not None:
+            query["unit_id"] = unit_id
+
+        return self.user_collection.delete_one(query)
 
