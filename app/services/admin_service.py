@@ -45,8 +45,3 @@ class AdminService:
         )
 
         return self.admin_repository.insert_admin(admin)
-
-
-    def get_admin_by_credentials(self, username: str, password: str):
-
-        return self
