@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from pymongo.results import InsertOneResult
 from app.exceptions.exceptions import UnitNotFoundByIdError, UserNotFoundByCredentialsError, UserNotFoundByIdError
 from app.model.employee import Employee
@@ -109,7 +109,7 @@ class EmployeeService():
 
         return employee
 
-
+    """ TODO fix incorrect raise value error  in docstring, points to incorrect funtion"""
     def get_employee(self, username: str, password: str, unit_id: str) -> Employee:
         """
         Get an Employee instance from the DB by their credentials.
@@ -146,3 +146,34 @@ class EmployeeService():
         employee.unit_name = unit.name
 
         return employee
+
+
+    def get_employees_in_unit(self, unit_id: str) -> List[Employee]:
+        """
+        Returns all the employees inside the unit specified by `unit_id`
+
+        Args:
+            unit_id (str): The id of the unit.
+
+        Returns:
+            employees (List[Employee]): A list of all the employees
+                in the given unit.
+
+        Raises:
+            UnitNotFoundByIdError: If the unit does not exist.
+            ValueError: If the employee record is missing required attributes
+                (see EmployeeRepository.get_employees()).
+        """
+
+        unit = self.unit_repository.get_unit_by_id(unit_id)
+
+        if unit is None:
+            raise UnitNotFoundByIdError(unit_id)
+
+        employees = self.employee_repository.get_employees_in_unit(unit_id)
+
+        # the unit_name is not saved in the db for each employee
+        for employee in employees:
+            employee.unit_name = unit.name
+
+        return employees

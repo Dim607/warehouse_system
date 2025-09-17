@@ -76,6 +76,35 @@ class EmployeeRepository:
 
         return Employee.from_persistence_dict(result)
 
+
+    def get_employees_in_unit(self, unit_id: str) -> List[Employee]:
+        """
+        Retrieve all the employees inside the unit specified by `unit_id`.
+
+        Note that for each Employee instance the field `unit_name`
+        is not stored in the DB and it will be set to None.
+
+        Args:
+            unit_id (str): The id of the unit.
+
+        Returns:
+            List[Employee]: A list of all the employees in the given unit.
+                If no employees are found the list is emply.
+
+        Raises:
+            ValueError: If the Database record of any employee
+            is missing required attributes
+            (see User.from_persistence_dict() for details on the required attributes).
+        """
+
+        cursor = self.user_collection.find({"unit_id": unit_id, "role": "employee"})
+
+        if cursor is None:
+            return []
+
+        return [Employee.from_persistence_dict(e) for e in cursor]
+
+
     def insert_employee(self, employee: Employee) -> InsertOneResult:
         """
         Inserts an employee to the database.
