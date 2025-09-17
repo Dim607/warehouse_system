@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      table, th, td {
+        border: 2px solid;
+        border-collapse: collapse;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Profile</h1>
+      <table>
+        <tr>
+          <th>Name</th>
+          <th>Surname</th>
+          <th>Username</th>
+          <th>Unit id</th>
+          <th>Unit name</th>
+          <th>Action</th>
+        </tr>
+        {% for employee in employees %}
+        <tr>
+          <td> {{ employee.name }} </td>
+          <td> {{ employee.surname }} </td>
+          <td> {{ employee.username }} </td>
+          <td> {{ employee.unit_id }} </td>
+          <td> {{ employee.unit_name }} </td>
+          <td>
+            <form method="post" action="{{ url_for('supervisor.view_employees') }}">
+              <input type="hidden" name="employee_id" value="{{ employee.id }}">
+              <button type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+
+      <a href="{{ url_for('user.dashboard') }}">Return to dashboard </a>
+
+    {% if error %}
+    <p style="color: red;">{{ error }}</p>
+    {% endif %}
+  </body>
+</html>
